@@ -2,6 +2,7 @@
   "name": "app_presupuesto",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js"
@@ -11,7 +12,18 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "bootstrap": "^5.3.3",
+    "ejs": "3.1.10",
     "express": "4.21.1",
-    "mssql": "11.0.1"
+    "jquery": "^3.7.1",
+    "mssql": "11.0.1",
+    "path": "0.12.7",
+    "popper": "^1.0.1"
+  },
+  "devDependencies": {
+    "standard": "^17.1.2"
+  },
+  "eslintConfig": {
+    "extends": "standard"
   }
 }
