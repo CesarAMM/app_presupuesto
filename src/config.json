@@ -1,8 +1,0 @@
-{
-  "mssql_credenciales": {
-    "DB_USER": "sa",
-    "DB_PASSWORD": "$Desarrollo",
-    "DB_SERVER":"localhost",
-    "DB_DATABASE":"cam_presupuesto"
-  }
-}
