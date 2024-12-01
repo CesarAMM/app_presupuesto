@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%-include ('components/head.html') %>
+</head>
+<body>
+  
+  <%-include ('components/navbar.html') %>
+  <main class="container-fluid pt-5">
+    <section class="border border-4 border-success-subtle rounded px-2 py-3" style="--bs-border-opacity: .5;">
+      <div class="row">
+        <class class="col-4">
+          <div class="btn-group" role="group" aria-label="Default button group">
+            <button type="button" class="btn btn-outline-success">Guardar</button>
+            <button type="button" class="btn btn-outline-warning">Limpiar</button>
+          </div>
+        </class>
+      </div>
+    </section>
+    <br>
+    <section class="border border-4 border-success-subtle rounded px-2 py-3" style="--bs-border-opacity: .5;">
+      <div class="row">
+        <div class="col-4">
+          <div class="mb-3">
+            <label for="inp_toperacion" class="form-label">Tipo de Operacion</label>
+            <select class="form-select form-select-sm" id="inp_toperacion">
+              <option selected>Tipo Operacion</option>
+              <option value="1">Ingreso</option>
+              <option value="2">Egreso</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="mb-3">
+            <label for="inp_categoria" class="form-label">Categoria</label>
+            <select class="form-select form-select-sm" id="inp_categoria">
+              <option selected>Tipo Categoria</option>
+              <option value="1">Ingreso</option>
+              <option value="2">Egreso</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="mb-3">
+            <label for="inp_subcategoria" class="form-label">Sub Categoria</label>
+            <select class="form-select form-select-sm" id="inp_subcategoria">
+              <option selected>Tipo sub Categoria</option>
+              <option value="1">Ingreso</option>
+              <option value="2">Egreso</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-3">
+          <div class="mb-3">
+            <label for="inp_cuenta" class="form-label">Cuenta</label>
+            <select class="form-select form-select-sm" id="inp_cuenta">
+              <option selected>Tipo Operacion</option>
+              <option value="1">Ingreso</option>
+              <option value="2">Egreso</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="mb-3">
+            <label for="inp_monto" class="form-label">Monto</label>
+            <input class="form-control form-control-sm" type="text" id="inp_monto">
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="mb-3">
+            <label for="inp_fecha_compra" class="form-label">Fecha</label>
+            <input class="form-control form-control-sm" type="date" id="inp_fecha_compra">
+          </div>
+        </div>
+        <div class="col-3 pt-4">
+          <button type="button" class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#seccion_detalle" aria-expanded="false" aria-controls="seccion_detalle">Agregar Detalle</button>
+        </div>
+      </div>
+    </section>
+    <br>
+    <section class="border border-4 border-success-subtle rounded px-2 py-3 collapse" style="--bs-border-opacity: .5;" id="seccion_detalle">
+      
+    </section>
+  </main>
+  <%-include ('components/scripts.html') %>
+  <script src="js/operacion.js"></script>
+</body>
+</html>

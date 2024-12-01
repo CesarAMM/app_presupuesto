@@ -5,6 +5,7 @@ import {fileURLToPath} from 'url'
 
 //! RUTAS
 import router_index from './routes/index.routes.js'
+import router_operacion from './routes/operacion.routes.js'
 
 //! CONFIGURACIONES CONSTANTES
 import {PORT} from './config.js';
@@ -21,6 +22,7 @@ app.use(express.json());
 
 //! RUTAS DE LA APLICACION
 app.use(router_index)
+app.use(router_operacion)
 
 //! CONSTANTES
 app.use(express.static(path.join(__dirname, 'public')))
