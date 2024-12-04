@@ -75,13 +75,60 @@
           </div>
         </div>
         <div class="col-3 pt-4">
-          <button type="button" class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#seccion_detalle" aria-expanded="false" aria-controls="seccion_detalle">Agregar Detalle</button>
+          <button type="button" value="0" class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#seccion_detalle" aria-expanded="false" aria-controls="seccion_detalle" id="btnShowDetalle">Agregar Detalle</button>
         </div>
       </div>
     </section>
     <br>
     <section class="border border-4 border-success-subtle rounded px-2 py-3 collapse" style="--bs-border-opacity: .5;" id="seccion_detalle">
-      
+      <div class="row">
+        <div class="col-7">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Descripcion</th>
+                <th scope="col">Medida</th>
+                <th scope="col">Cantidad</th>
+                <th scope="col">monto</th>
+              </tr>
+            </thead>
+            <tbody id="tbL_det_operacion">
+            </tbody>
+          </table>
+        </div>
+        <div class="col-5">
+          <div class="row">
+            <div class="col-4">
+              <div class="mb-3">
+                <label for="inp_detalle" class="form-label">Detalle</label>
+                <input class="form-control form-control-sm" type="text" id="inp_detalle">
+              </div>
+            </div>
+            <div class="col-3">
+              <div class="mb-3">
+                <label for="inp_det_monto" class="form-label">Medida</label>
+                <input class="form-control form-control-sm" type="text" id="inp_medida">
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="mb-3">
+                <label for="inp_det_monto" class="form-label">Cantidad</label>
+                <input class="form-control form-control-sm" type="number" id="inp_cantidad">
+              </div>
+            </div>
+            <div class="col-3">
+              <div class="mb-3">
+                <label for="inp_det_monto" class="form-label">Monto</label>
+                <input class="form-control form-control-sm" type="number" id="inp_det_monto">
+              </div>
+            </div>
+            <div class="col-2">
+              <button type="button" class="btn btn-outline-success" id="btn_agregar">Agregar</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
   </main>
   <%-include ('components/scripts.html') %>
