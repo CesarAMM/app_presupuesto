@@ -1,7 +1,9 @@
 /* eslint-disable no-undef */
 // variables  Glovales
-let VGcategoria, VGToperacion, VGSubCategoria;
+let VGCategoria, VGToperacion, VGSubCategoria;
 let VGContador
+
+//! INICIO DE CARGA DE PAGINA
 $(function() {
   $.ajax({
     url: '/operacion',
@@ -9,14 +11,47 @@ $(function() {
     method: 'GET',
     success: (data) => {
       VGToperacion = data.return[0];
-      VGcategoria = data.return[1];
-      VGSubCategoria = data.return[2]
-      console.log(VGcategoria)
-      console.log(VGToperacion)
-      console.log(VGSubCategoria)
+      VGCategoria = data.return[1];
+      VGSubCategoria = data.return[2];
+      $('#inp_toperacion').html('<option value="0" selected>Tipo Operacion</option>')
+      $(VGToperacion).each((i, e) => {
+        $('#inp_toperacion').append(`<option value="${e.Codigo}">${e.Operacion}</option>`)
+      })
+      $('#inp_categoria').html('<option value="0" selected>Tipo Categoria</option>')
+      $(VGCategoria).each((i, e) => {
+        $('#inp_categoria').append(`<option value="${e.Codigo}">${e.Categoria}</option>`)
+      })
+      $('#inp_subcategoria').html('<option value="0" selected>Sub Tipo Categoria</option>')
+      $(VGSubCategoria).each((i, e) => {
+        $('#inp_subcategoria').append(`<option value="${e.Codigo}">${e.Descripcion}</option>`)
+      })
     }
   })
 });
+
+$('#inp_toperacion, #inp_categoria').on('change', () => {
+  const VLToperacion = $("#inp_toperacion").val()
+  const VLCategoria = $('#inp_categoria').val()
+  const VLPT1 = VLToperacion == 1 ? "sci" : VLToperacion == 2 ? "sce" : ""
+  const VLPT2 = VLCategoria == 1 ? "fijo" : VLCategoria == 2 ? "variable" : VLCategoria == 3 ? "ocacional" : VLCategoria == 4 ? "inversion" : ""
+  $('#inp_subcategoria').html(`<option value="0" selected>Sub Tipo Categoria</option>`)
+  if(VLPT1 == "" && VLPT2 == ""){
+    $(VGSubCategoria).each((i, e) => {
+      $('#inp_subcategoria').append(`<option value="${e.Codigo}">${e.Descripcion}</option>`)
+    })
+  }else{
+    $(VGSubCategoria).each((i, e) => {
+      const VLBusqueda1 = e.Tabla.split("_")[1], VLBusqueda2 = e.Tabla.split("_")[2]
+      
+      if((VLBusqueda1 == VLPT1 || VLPT1 == "") && (VLBusqueda2 == VLPT2 || VLPT2 == "")){
+        console.log('-------------------------')
+        console.log(`${VLPT1} == ${VLBusqueda1}`)
+        console.log(`${VLPT2} == ${VLBusqueda2}`)
+        $('#inp_subcategoria').append(`<option value="${e.Codigo}">${e.Descripcion}</option>`)
+      }
+    })
+  }
+})
 
 $('#btnShowDetalle').on('click', () => {
   const VLValor = $('#btnShowDetalle').val()
