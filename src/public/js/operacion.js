@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 // variables  Glovales
-let VGCategoria, VGToperacion, VGSubCategoria;
+let VGCategoria, VGToperacion, VGSubCategoria, VGCuenta;
 let VGContador
 
 //! INICIO DE CARGA DE PAGINA
@@ -13,6 +13,8 @@ $(function() {
       VGToperacion = data.return[0];
       VGCategoria = data.return[1];
       VGSubCategoria = data.return[2];
+      VGCuenta = data.return[3]
+      $('#inp_monto').val(0)
       $('#inp_toperacion').html('<option value="0" selected>Tipo Operacion</option>')
       $(VGToperacion).each((i, e) => {
         $('#inp_toperacion').append(`<option value="${e.Codigo}">${e.Operacion}</option>`)
@@ -25,9 +27,75 @@ $(function() {
       $(VGSubCategoria).each((i, e) => {
         $('#inp_subcategoria').append(`<option value="${e.Codigo}">${e.Descripcion}</option>`)
       })
+      $('#inp_cuenta').html('<option value="0" selected>Sub Tipo Categoria</option>')
+      $(VGCuenta).each((i, e) => {
+        $('#inp_cuenta').append(`<option value="${e.Codigo}">${e.NoCuenta} - ${e.Banco}</option>`)
+      })
     }
   })
 });
+
+$('#btnGuardarOperacion').on('click', () => {
+  const VLTOperacion = parseInt($('#inp_toperacion').val())
+  const VLCategoria = parseInt($('#inp_categoria').val())
+  const VLSubcategoria = parseInt($('#inp_subcategoria').val())
+  const VLCuenta = parseInt($('#inp_cuenta').val())
+  const VLMonto = parseFloat($('#inp_monto').val())
+  const VLFecha = $('#inp_fecha_compra').val()
+  const VLModo = parseInt($('#btnShowDetalle').val())
+  let VLDetalle = []
+
+  if(VLTOperacion == 0 || VLCategoria == 0 || VLSubcategoria == 0 || VLCuenta == 0 || VLMonto == 0){
+    alert('Debe de llenar todas las opciones')
+    return;
+  }
+
+  if(VLFecha == ""){
+    alert('Debe de seleccionar la fecha')
+    return;
+  }
+
+  $.ajax({
+    url: '/insert_operacion',
+    timeout: 15000,
+    method: 'post',
+    data:{
+      VLTOperacion: VLTOperacion, 
+      VLCategoria: VLCategoria,
+      VLSubcategoria: VLSubcategoria,
+      VLCuenta: VLCuenta, 
+      VLMonto: VLMonto, 
+      VLFecha: VLFecha
+    },
+    success: (data) => {
+      const VLEstado = data.VLRespuesta.estatus
+      const VLOperacion = data.VLRespuesta.codigo
+      let VLContador = 0
+      if(VLEstado == false){ return }
+
+      if(VLModo == 1 && VLOperacion != 0){
+        $('#tbL_det_operacion > tr').each((i, e) => {
+          $.ajax({
+            url: '/insert_det_operacion',
+            timeout: 15000,
+            method: 'POST',
+            data: {
+              VTOperacion: VLOperacion,
+              VTCodigo: parseInt($(e).find('.CSS_CONTADOR').html()),
+              VTDescripcion: $(e).find('.CSS_DESCRIPCION').html(),
+              VTMedida: $(e).find('.CSS_MEDIDA').html(),
+              VTCantidad: parseInt($(e).find('.CSS_CANTIDAD').html()),
+              VTMonto: parseFloat($(e).find('.CSS_MONTO').html())
+            },
+            success: (data2) => { if(data2.estatus){VLContador++} }
+          })
+        })
+      }
+      PLLimpiar()
+    }
+  })
+
+})
 
 $('#inp_toperacion, #inp_categoria').on('change', () => {
   const VLToperacion = $("#inp_toperacion").val()
@@ -42,11 +110,7 @@ $('#inp_toperacion, #inp_categoria').on('change', () => {
   }else{
     $(VGSubCategoria).each((i, e) => {
       const VLBusqueda1 = e.Tabla.split("_")[1], VLBusqueda2 = e.Tabla.split("_")[2]
-      
       if((VLBusqueda1 == VLPT1 || VLPT1 == "") && (VLBusqueda2 == VLPT2 || VLPT2 == "")){
-        console.log('-------------------------')
-        console.log(`${VLPT1} == ${VLBusqueda1}`)
-        console.log(`${VLPT2} == ${VLBusqueda2}`)
         $('#inp_subcategoria').append(`<option value="${e.Codigo}">${e.Descripcion}</option>`)
       }
     })
@@ -107,4 +171,28 @@ function PLMontoDetalle() {
     VLMonto += parseFloat($(e).find('.CSS_MONTO').html())
   })
   return VLMonto
+}
+
+function PLLimpiar(){
+  $('#inp_toperacion').val(0)
+  $('#inp_categoria').val(0)
+  $('#inp_subcategoria').val(0)
+  $('#inp_cuenta').val(0)
+  $('#inp_monto').val('0')
+  $('#inp_fecha_compra').val('')
+  $('#inp_det_monto').val('')
+  $('#inp_cantidad').val('')
+  $('#inp_detalle').val('')
+  $('#inp_medida').val('')
+  const VLValor = $('#btnShowDetalle').val()
+  if(VLValor != 0){
+    $('#btnShowDetalle').html(VLValor == 0 ? 'Cancelar Detalle' : 'Agregar Detalle')
+    $('#btnShowDetalle').removeClass().addClass(VLValor == 0 ? 'btn btn-outline-danger': 'btn btn-outline-primary')
+    $('#inp_monto').attr('disabled', VLValor == 0)
+    $('#inp_monto').val(0)
+    VGContador = 0
+    $('#btnShowDetalle').val(VLValor == 0 ? 1: 0)
+    $('#tbL_det_operacion').html('')
+    $('#seccion_detalle').removeClass('show')
+  }
 }

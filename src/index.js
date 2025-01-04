@@ -1,5 +1,6 @@
 import express from "express";
 import ejs from 'ejs';
+import bodyParser from "body-parser";
 import path, {dirname} from 'path';
 import {fileURLToPath} from 'url'
 
@@ -19,6 +20,8 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.engine('html', ejs.renderFile);
 app.use(express.json());
+app.use(bodyParser.json({limit: '50mb'}))
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true, parameterLimit: 100000000000}));
 
 //! RUTAS DE LA APLICACION
 app.use(router_index)
