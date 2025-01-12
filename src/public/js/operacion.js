@@ -33,6 +33,17 @@ $(function() {
       })
     }
   })
+
+  $.ajax({
+    url: '/estado_cuenta',
+    timeout: 15000,
+    method: 'get',
+    success: (data) => {
+      if(data.estatus == true){
+        console.log(data)
+      }
+    }
+  })
 });
 
 $('#btnGuardarOperacion').on('click', () => {

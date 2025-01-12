@@ -60,6 +60,23 @@ export default class OperacionRepository {
     }
   }
 
+  static async estado_cuenta(){
+    try{
+      const pool = await getConnection('cam_presupuesto');
+      const result = await pool.request()
+        .input('i_operacion', sql.Char, 'C')
+        .input('i_modo', sql.Int, 1)
+        .execute('sp_operacion')
+      await pool.close();
+      const VLData = result.recordset;
+      const VLReturn = parseInt(result.returnValue)
+      if (VLReturn != 0){ return {"estatus": false, "mensaje": "Error - insertar operacion" }}
+      return {"estatus": true, "data": VLData, "mensaje": `Todo Correcto`}
+    }catch (error) {
+      return { "estatus": false, "mensaje": "2. Error en la base de datos"}
+    }
+  }
+
   static select_operacion () {
 
   }

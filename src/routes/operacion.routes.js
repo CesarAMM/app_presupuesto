@@ -20,4 +20,9 @@ router.get('/operacion', async (req, res) => {
   res.json({ return: ress.recordsets })
 })
 
+router.get('/estado_cuenta', async (req, res) => {
+  const VLRespuesta = await OperacionRepository.estado_cuenta()
+  res.json(VLRespuesta)
+})
+
 export default router
