@@ -78,6 +78,6 @@ export default class OperacionRepository {
   }
 
   static select_operacion () {
-
+    
   }
 }

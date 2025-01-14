@@ -40,7 +40,19 @@ $(function() {
     method: 'get',
     success: (data) => {
       if(data.estatus == true){
-        console.log(data)
+        const VLCuentas = data.data
+        VLCuentas.forEach(VTElemento => {
+          $('#tbL_det_cuentas').append(`
+            <tr id="tbl_detalle_${VTElemento.CODIGO}">
+              <td class="CSS_CODIGO">${VTElemento.CODIGO}</td>
+              <td class="CSS_CUENTA">${VTElemento.CUENTA}</td>
+              <td class="CSS_INGRESO">${PLImpMoneda(VTElemento.INGRESO)}</td>
+              <td class="CSS_EGRESO">${PLImpMoneda(VTElemento.EGRESO)}</td>
+              <td class="CSS_SALDO">${PLImpMoneda(VTElemento.SALDO)}</td>
+            </tr>
+          `);
+        });
+
       }
     }
   })
@@ -54,7 +66,6 @@ $('#btnGuardarOperacion').on('click', () => {
   const VLMonto = parseFloat($('#inp_monto').val())
   const VLFecha = $('#inp_fecha_compra').val()
   const VLModo = parseInt($('#btnShowDetalle').val())
-  let VLDetalle = []
 
   if(VLTOperacion == 0 || VLCategoria == 0 || VLSubcategoria == 0 || VLCuenta == 0 || VLMonto == 0){
     alert('Debe de llenar todas las opciones')
@@ -96,7 +107,7 @@ $('#btnGuardarOperacion').on('click', () => {
               VTDescripcion: $(e).find('.CSS_DESCRIPCION').html(),
               VTMedida: $(e).find('.CSS_MEDIDA').html(),
               VTCantidad: parseInt($(e).find('.CSS_CANTIDAD').html()),
-              VTMonto: parseFloat($(e).find('.CSS_MONTO').html())
+              VTMonto: parseFloat($(e).find('.VLMONTO').html())
             },
             success: (data2) => { if(data2.estatus){VLContador++} }
           })
@@ -165,7 +176,7 @@ $('#btn_agregar').on('click', () => {
       <td class="CSS_DESCRIPCION">${VLDescripcion}</td>
       <td class="CSS_MEDIDA">${VLMedida}</td>
       <td class="CSS_CANTIDAD">${VLCantidad}</td>
-      <td class="CSS_MONTO">${VLMonto}</td>
+      <td class="CSS_MONTO">${PLImpMoneda(VLMonto)}</td>
     </tr>
   `)
   $('#inp_monto').val(PLMontoDetalle())
@@ -179,7 +190,7 @@ $('#btn_agregar').on('click', () => {
 function PLMontoDetalle() {
   let VLMonto = 0
   $('#tbL_det_operacion > tr').each((i,e) => {
-    VLMonto += parseFloat($(e).find('.CSS_MONTO').html())
+    VLMonto += Math.round(parseFloat($(e).find('.VLMONTO').html()) * 100) /100
   })
   return VLMonto
 }
@@ -206,4 +217,24 @@ function PLLimpiar(){
     $('#tbL_det_operacion').html('')
     $('#seccion_detalle').removeClass('show')
   }
+}
+
+function PLImpMoneda(VTValor){
+  let VLValor = VTValor.toString().split('.')[0]
+  let VLDecimal = VTValor.toString().split('.')[1]
+  let VLHTML = '', VLContador = 0
+  const VLLongitud = VLValor.length
+  for(let i = VLLongitud; i > 0; i--){
+    VLContador++
+    VLHTML += VLValor.substring(i, i-1)
+    if(VLContador%3 == 0 && i -1 > 0){VLHTML += ','}
+  }
+  const VLAuxHTML = VLHTML;
+  VLHTML = '';
+  for(let  i = VLAuxHTML.length; i > 0; i--){
+    VLHTML += VLAuxHTML.substring(i, i-1)
+  }
+  if(VLDecimal === undefined){VLDecimal = '00'}
+  if(VLDecimal.length < 2){ VLDecimal = VLDecimal + '0'}
+  return `Q <spam class="VLMONTO">${VLHTML}.${VLDecimal}</spam>`
 }

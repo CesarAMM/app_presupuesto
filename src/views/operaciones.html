@@ -8,17 +8,19 @@
   <%-include ('components/navbar.html') %>
   <main class="container-fluid pt-5">
     <section class="border border-4 border-success-subtle rounded px-2 py-3" style="--bs-border-opacity: .5;">
-      <div id="id_cuentas"></div>
-    </section>
-    <section class="border border-4 border-success-subtle rounded px-2 py-3" style="--bs-border-opacity: .5;">
-      <div class="row">
-        <class class="col-4">
-          <div class="btn-group" role="group" aria-label="Default button group">
-            <button type="button" class="btn btn-outline-success" id="btnGuardarOperacion">Guardar</button>
-            <button type="button" class="btn btn-outline-warning">Limpiar</button>
-          </div>
-        </class>
-      </div>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">CUENTA</th>
+            <th scope="col">INGRESO</th>
+            <th scope="col">EGRESO</th>
+            <th scope="col">SALDO</th>
+          </tr>
+        </thead>
+        <tbody id="tbL_det_cuentas">
+        </tbody>
+      </table>
     </section>
     <br>
     <section class="border border-4 border-success-subtle rounded px-2 py-3" style="--bs-border-opacity: .5;">
@@ -63,6 +65,10 @@
         </div>
         <div class="col-3 pt-4">
           <button type="button" value="0" class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#seccion_detalle" aria-expanded="false" aria-controls="seccion_detalle" id="btnShowDetalle">Agregar Detalle</button>
+          <div class="btn-group" role="group" aria-label="Default button group">
+            <button type="button" class="btn btn-outline-success" id="btnGuardarOperacion">Guardar</button>
+            <button type="button" class="btn btn-outline-warning">Limpiar</button>
+          </div>
         </div>
       </div>
     </section>
