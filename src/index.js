@@ -7,6 +7,7 @@ import {fileURLToPath} from 'url'
 //! RUTAS
 import router_index from './routes/index.routes.js'
 import router_operacion from './routes/operacion.routes.js'
+import router_reporte from './routes/reporte.routes.js'
 
 //! CONFIGURACIONES CONSTANTES
 import {PORT} from './config.js';
@@ -26,7 +27,7 @@ app.use(bodyParser.urlencoded({limit: '50mb', extended: true, parameterLimit: 10
 //! RUTAS DE LA APLICACION
 app.use(router_index)
 app.use(router_operacion)
-
+app.use(router_reporte)
 //! CONSTANTES
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(express.static(path.join(__dirname, '../node_modules/bootstrap/dist/js')));

@@ -21,7 +21,7 @@ router.get('/operacion', async (req, res) => {
 })
 
 router.get('/estado_cuenta', async (req, res) => {
-  const VLRespuesta = await OperacionRepository.estado_cuenta()
+  const VLRespuesta = await OperacionRepository.estado_cuenta();
   res.json(VLRespuesta)
 })
 
