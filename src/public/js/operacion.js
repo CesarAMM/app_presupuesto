@@ -189,10 +189,8 @@ $('#btn_agregar').on('click', () => {
 
 function PLMontoDetalle() {
   let VLMonto = 0
-  $('#tbL_det_operacion > tr').each((i,e) => {
-    VLMonto += Math.round(parseFloat($(e).find('.VLMONTO').html()) * 100) /100
-  })
-  return Math.round(VLMonto * 100) /100
+  $('#tbL_det_operacion > tr').each((i,e) => { VLMonto += parseFloat($(e).find('.VLMONTO').html().replace(/,/g, '')) })
+  return Number(VLMonto.toFixed(2))
 }
 
 function PLLimpiar(){
