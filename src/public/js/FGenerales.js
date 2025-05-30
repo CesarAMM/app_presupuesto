@@ -19,3 +19,10 @@ function PLImpMoneda(VTValor){
   if(VLDecimal.length < 2){ VLDecimal = VLDecimal + '0'}
   return `Q <spam class="VLMONTO">${VLHTML}.${VLDecimal}</spam>`
 }
+
+function FGLlenarSelect(IdElement, args, descripcion){
+  $('#'+IdElement).html('<option value="0" selected>'+descripcion+'</option>')
+  $(args).each((i, e) => {
+    $('#'+IdElement).append(`<option value="${e.ca_codigo}">${e.ca_valor}</option>`)
+  })
+}

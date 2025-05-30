@@ -1,40 +1,34 @@
 /* eslint-disable no-undef */
 // variables  Glovales
-let VGCategoria, VGToperacion, VGSubCategoria, VGCuenta;
+let VGTOPERACION, VGCATEGORIA, VGSUBCATEGORIA, VGTCATEGORIA, VGMATRIZ = [];
 let VGContador
 
 //! INICIO DE CARGA DE PAGINA
-$(function() {
+$(()=> {
   $.ajax({
     url: '/operacion',
     timeout: 15000,
     method: 'GET',
-    success: (data) => {
-      VGToperacion = data.return[0];
-      VGCategoria = data.return[1];
-      VGSubCategoria = data.return[2];
-      VGCuenta = data.return[3]
+    success: (respuesta) => {
+      VGMATRIZ = respuesta.MATRIZ;
+      VGTOPERACION = respuesta.TOPERACION;
+      VGCATEGORIA = respuesta.CATEGORIA;
+      VGSUBCATEGORIA = respuesta.SUBCATEGORIA;
+      VGTCATEGORIA = respuesta.TCATEGORIA;
+
       $('#inp_monto').val(0)
-      $('#inp_toperacion').html('<option value="0" selected>Tipo Operacion</option>')
-      $(VGToperacion).each((i, e) => {
-        $('#inp_toperacion').append(`<option value="${e.Codigo}">${e.Operacion}</option>`)
-      })
-      $('#inp_categoria').html('<option value="0" selected>Tipo Categoria</option>')
-      $(VGCategoria).each((i, e) => {
-        $('#inp_categoria').append(`<option value="${e.Codigo}">${e.Categoria}</option>`)
-      })
-      $('#inp_subcategoria').html('<option value="0" selected>Sub Tipo Categoria</option>')
-      $(VGSubCategoria).each((i, e) => {
-        $('#inp_subcategoria').append(`<option value="${e.Codigo}">${e.Descripcion}</option>`)
-      })
-      $('#inp_cuenta').html('<option value="0" selected>Sub Tipo Categoria</option>')
+      FGLlenarSelect('inp_toperacion', VGTOPERACION, 'TIPO DE OPERACION')
+      FGLlenarSelect('inp_categoria', VGCATEGORIA, 'CATEGORIA')
+      FGLlenarSelect('inp_tcategoria', VGTCATEGORIA, 'TIPO DE CATEGORIA')
+      FGLlenarSelect('inp_subcategoria', VGSUBCATEGORIA, 'TIPO DE SUBCATEGORIA')
+
+      /*$('#inp_cuenta').html('<option value="0" selected>CUENTA</option>')
       $(VGCuenta).each((i, e) => {
         $('#inp_cuenta').append(`<option value="${e.Codigo}">${e.NoCuenta} - ${e.Banco}</option>`)
-      })
+      })*/
     }
   })
-
-  $.ajax({
+  /*$.ajax({
     url: '/estado_cuenta',
     timeout: 15000,
     method: 'get',
@@ -55,7 +49,7 @@ $(function() {
 
       }
     }
-  })
+  })*/
 });
 
 $('#btnGuardarOperacion').on('click', () => {
@@ -119,24 +113,31 @@ $('#btnGuardarOperacion').on('click', () => {
 
 })
 
-$('#inp_toperacion, #inp_categoria').on('change', () => {
-  const VLToperacion = $("#inp_toperacion").val()
-  const VLCategoria = $('#inp_categoria').val()
-  const VLPT1 = VLToperacion == 1 ? "sci" : VLToperacion == 2 ? "sce" : ""
-  const VLPT2 = VLCategoria == 1 ? "fijo" : VLCategoria == 2 ? "variable" : VLCategoria == 3 ? "ocacional" : VLCategoria == 4 ? "inversion" : ""
-  $('#inp_subcategoria').html(`<option value="0" selected>Sub Tipo Categoria</option>`)
-  if(VLPT1 == "" && VLPT2 == ""){
-    $(VGSubCategoria).each((i, e) => {
-      $('#inp_subcategoria').append(`<option value="${e.Codigo}">${e.Descripcion}</option>`)
-    })
-  }else{
-    $(VGSubCategoria).each((i, e) => {
-      const VLBusqueda1 = e.Tabla.split("_")[1], VLBusqueda2 = e.Tabla.split("_")[2]
-      if((VLBusqueda1 == VLPT1 || VLPT1 == "") && (VLBusqueda2 == VLPT2 || VLPT2 == "")){
-        $('#inp_subcategoria').append(`<option value="${e.Codigo}">${e.Descripcion}</option>`)
-      }
-    })
-  }
+$('#inp_toperacion, #inp_categoria, #inp_tcategoria').on('change', () => {
+  const VLTOPERACION = $("#inp_toperacion").val()
+  const VLCATEGORIA = $('#inp_categoria').val()
+  const VLTCATEGORIA = $('#inp_tcategoria').val()
+  const VLSUBCATEGORIA = $('#inp_subcategoria').val()
+
+  VGMATRIZ.forEach((element, index) => {
+    if(element.cod_toperacion == VLTOPERACION){
+      $(`#inp_toperacion option[value="${element.cod_categoria}"]`).show()
+    }else{
+      $(`#inp_toperacion option[value="${element.cod_categoria}"]`).hide()  
+    }
+
+    if((element.cod_toperacion == VLTOPERACION && element.cod_categoria == VLCATEGORIA) || VLTOPERACION == 0){
+      $(`#inp_tcategoria option[value="${element.cod_tcategoria}"]`).show()
+    }else{ 
+      $(`#inp_tcategoria option[value="${element.cod_tcategoria}"]`).hide()
+    }
+    console.log(`Operacion: ${VLTOPERACION}`, `Categoria: ${VLCATEGORIA}`, `Tipo Categoria: ${VLTCATEGORIA}`, `${element.cod_tcategoria}`)
+    if((element.cod_toperacion === VLTOPERACION && element.cod_categoria === VLCATEGORIA && element.cod_tcategoria === VLTCATEGORIA) || (parseInt(VLTOPERACION) == 0 && parseInt(VLCATEGORIA) == 0)){
+      $(`#inp_subcategoria option[value="${element.cod_subcategoria}"]`).show()
+    }else{ 
+      $(`#inp_subcategoria option[value="${element.cod_subcategoria}"]`).hide()
+    }
+  })
 })
 
 $('#btnShowDetalle').on('click', () => {

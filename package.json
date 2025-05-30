@@ -12,14 +12,14 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "body-parser": "^1.20.3",
-    "bootstrap": "^5.3.3",
+    "body-parser": "1.20.3",
+    "bootstrap": "5.3.3",
     "ejs": "3.1.10",
     "express": "4.21.1",
-    "jquery": "^3.7.1",
+    "jquery": "3.7.1",
     "mssql": "11.0.1",
     "path": "0.12.7",
-    "popper": "^1.0.1"
+    "popper": "1.0.1"
   },
   "devDependencies": {
     "globals": "^15.12.0",

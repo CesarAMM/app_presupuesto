@@ -17,7 +17,13 @@ router.post('/insert_det_operacion', async (req, res) => {
 
 router.get('/operacion', async (req, res) => {
   const ress = await OperacionRepository.data_operacion()
-  res.json({ return: ress.recordsets })
+  res.json({
+      "TOPERACION": ress.recordsets[0],
+      "CATEGORIA": ress.recordsets[1],
+      "TCATEGORIA": ress.recordsets[2],
+      "SUBCATEGORIA": ress.recordsets[3],
+      "MATRIZ": ress.recordsets[4]
+  })
 })
 
 router.get('/estado_cuenta', async (req, res) => {

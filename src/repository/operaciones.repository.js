@@ -3,12 +3,13 @@ import {getConnection} from '../config/config_sql.js'
 
 export default class OperacionRepository {
   static async data_operacion (){
-    const pool = await getConnection("cam_presupuesto")
+    const pool = await getConnection("presupuesto")
     const result = await pool.request()
       .input('i_operacion', sql.Char, 'Q')
+      .input('i_modo', sql.Int, 1)
       .execute('sp_operacion')
-    pool.close()
-    return result
+    pool.close();
+    return  result;
   }
 
   static async insert_operacion ( VLTOperacion, VLCategoria, VLSubcategoria, VLCuenta, VLMonto, VLFecha) {

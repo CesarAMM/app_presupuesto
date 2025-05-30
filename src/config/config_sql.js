@@ -8,11 +8,13 @@ export const getConnection = async (dbDatabase) => {
       password: DB_PASSWORD,
       server: DB_SERVER,
       database: dbDatabase,
-      options: { encrypt: false, trustServerCertificate: true }
+      options: { 
+        encrypt: false,
+        trustServerCertificate: true  
+      }
     })
     return pool
   }catch (error){
-    console.error(error)
     return null
   }
 }
