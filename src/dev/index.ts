@@ -15,7 +15,7 @@ import router_presupuesto from './routes/presupuesto.routes.js'
 dotenv.config();
 
 const app = express();
-const __dirname = dirname(fileURLToPath(import.meta.url))
+const __dirname = path.dirname(dirname(fileURLToPath(import.meta.url)))
 const PORT = process.env.PORT || 8030
 //! MIDELWERS
 app.set('views', path.join(__dirname, 'views'));
