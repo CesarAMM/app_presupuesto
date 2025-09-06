@@ -13,7 +13,7 @@
   "description": "",
   "dependencies": {
     "body-parser": "1.20.3",
-    "bootstrap": "5.3.3",
+    "bootstrap": "^5.3.8",
     "ejs": "3.1.10",
     "express": "4.21.1",
     "jquery": "3.7.1",
@@ -23,7 +23,8 @@
   },
   "devDependencies": {
     "globals": "^15.12.0",
-    "standard": "^17.1.2"
+    "standard": "^17.1.2",
+    "typescript": "^5.9.2"
   },
   "eslintConfig": {
     "extends": "standard"

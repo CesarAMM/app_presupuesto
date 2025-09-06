@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%-include ('components/head.html') %>
+</head>
+<body>
+    <%-include ('components/navbar.html') %>
+    <section class="container-fluid">
+        <div class="card">
+            <div class="card-header text-center">
+                <p class="fs-4 fw-bold">Presupuesto</p>
+            </div>
+            <div class="card-body">
+                <table class="table table-success table-striped">
+                    <thead class="">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Descripcion</th>
+                            <th scope="col">Monto</th>
+                            <th scope="col">Estado</th>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-group-divider" id="tblDataPresupuesto">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+    </section>
+    <%-include ('components/scripts.html') %>
+    <script src="js/presupuesto.js"></script>
+</body>
+</html>

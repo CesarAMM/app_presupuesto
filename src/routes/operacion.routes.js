@@ -4,8 +4,8 @@ import { Router } from 'express';
 const router = Router();
 
 router.post('/insert_operacion', async (req, res) => {
-  const { VLTOperacion, VLCategoria, VLSubcategoria, VLCuenta, VLMonto, VLFecha } = req.body
-  const VLRespuesta = await OperacionRepository.insert_operacion( VLTOperacion, VLCategoria, VLSubcategoria, VLCuenta, VLMonto, VLFecha )
+  const { VLTOperacion, VLCategoria, VLSubcategoria, VLCuenta, VLMonto, VLFecha, VLTCategoria, VLResponsable } = req.body
+  const VLRespuesta = await OperacionRepository.insert_operacion( VLTOperacion, VLCategoria, VLSubcategoria, VLCuenta, VLMonto, VLFecha, VLTCategoria, VLResponsable )
   res.json({ VLRespuesta })
 })
 
@@ -22,7 +22,8 @@ router.get('/operacion', async (req, res) => {
       "CATEGORIA": ress.recordsets[1],
       "TCATEGORIA": ress.recordsets[2],
       "SUBCATEGORIA": ress.recordsets[3],
-      "MATRIZ": ress.recordsets[4]
+      "CUENTA": ress.recordsets[4],
+      "MATRIZ": ress.recordsets[5]
   })
 })
 

@@ -11,6 +11,8 @@ create table ppt_operacion(
 	op_categoria		catalogo	not null,	-- FIJO -- VARIABLE -- OCACIONAL
 	op_tcategoria		catalogo	not null,
 	op_subcategoria		catalogo	not null,
+	op_cuenta			catalogo	not null,
+
 	op_ing_fecha		datetime	not null,
 	op_fac_fecha		datetime	not null,
 	op_monto			money		not null,

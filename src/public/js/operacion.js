@@ -1,6 +1,7 @@
 /* eslint-disable no-undef */
 // variables  Glovales
 let VGTOPERACION, VGCATEGORIA, VGSUBCATEGORIA, VGTCATEGORIA, VGMATRIZ = [];
+let VGCUENTA
 let VGContador
 
 //! INICIO DE CARGA DE PAGINA
@@ -15,26 +16,27 @@ $(()=> {
       VGCATEGORIA = respuesta.CATEGORIA;
       VGSUBCATEGORIA = respuesta.SUBCATEGORIA;
       VGTCATEGORIA = respuesta.TCATEGORIA;
-
+      VGCUENTA = respuesta.CUENTA;
       $('#inp_monto').val(0)
       FGLlenarSelect('inp_toperacion', VGTOPERACION, 'TIPO DE OPERACION')
       FGLlenarSelect('inp_categoria', VGCATEGORIA, 'CATEGORIA')
       FGLlenarSelect('inp_tcategoria', VGTCATEGORIA, 'TIPO DE CATEGORIA')
       FGLlenarSelect('inp_subcategoria', VGSUBCATEGORIA, 'TIPO DE SUBCATEGORIA')
-
-      /*$('#inp_cuenta').html('<option value="0" selected>CUENTA</option>')
-      $(VGCuenta).each((i, e) => {
-        $('#inp_cuenta').append(`<option value="${e.Codigo}">${e.NoCuenta} - ${e.Banco}</option>`)
-      })*/
+      FGLlenarSelect('inp_cuenta', VGCUENTA, 'SELECCIONE CUENTA')
     }
   })
-  /*$.ajax({
+  FNConsultaEstado();
+});
+
+const FNConsultaEstado = () => {
+  $.ajax({
     url: '/estado_cuenta',
     timeout: 15000,
     method: 'get',
     success: (data) => {
       if(data.estatus == true){
-        const VLCuentas = data.data
+        const VLCuentas = data.DATA
+        $('#tbL_det_cuentas').html('')
         VLCuentas.forEach(VTElemento => {
           $('#tbL_det_cuentas').append(`
             <tr id="tbl_detalle_${VTElemento.CODIGO}">
@@ -46,22 +48,23 @@ $(()=> {
             </tr>
           `);
         });
-
       }
     }
-  })*/
-});
+  })
+}
 
 $('#btnGuardarOperacion').on('click', () => {
-  const VLTOperacion = parseInt($('#inp_toperacion').val())
-  const VLCategoria = parseInt($('#inp_categoria').val())
-  const VLSubcategoria = parseInt($('#inp_subcategoria').val())
-  const VLCuenta = parseInt($('#inp_cuenta').val())
-  const VLMonto = parseFloat($('#inp_monto').val())
-  const VLFecha = $('#inp_fecha_compra').val()
-  const VLModo = parseInt($('#btnShowDetalle').val())
-
-  if(VLTOperacion == 0 || VLCategoria == 0 || VLSubcategoria == 0 || VLCuenta == 0 || VLMonto == 0){
+  const VLTOperacion = $('#inp_toperacion').val(),
+        VLCategoria = $('#inp_categoria').val(),
+        VLTCategoria = $('#inp_tcategoria').val(),
+        VLSubcategoria = $('#inp_subcategoria').val(),
+        VLCuenta = $('#inp_cuenta').val(),
+        VLMonto = parseFloat($('#inp_monto').val()),
+        VLFecha = $('#inp_fecha_compra').val(),
+        VLModo = parseInt($('#btnShowDetalle').val()),
+        VLResponsable = $('#inp_responsable').val()
+  if( VLTOperacion == '0' || VLCategoria == '0' || VLTCategoria == '0' || 
+    VLSubcategoria == '0' || VLCuenta == '0' || VLMonto == 0 || VLResponsable == ""){
     alert('Debe de llenar todas las opciones')
     return;
   }
@@ -75,20 +78,20 @@ $('#btnGuardarOperacion').on('click', () => {
     url: '/insert_operacion',
     timeout: 15000,
     method: 'post',
-    data:{
-      VLTOperacion: VLTOperacion, 
-      VLCategoria: VLCategoria,
-      VLSubcategoria: VLSubcategoria,
-      VLCuenta: VLCuenta, 
-      VLMonto: VLMonto, 
-      VLFecha: VLFecha
+    data:{  VLTOperacion: VLTOperacion, 
+            VLCategoria: VLCategoria,
+            VLSubcategoria: VLSubcategoria,
+            VLTCategoria: VLTCategoria,
+            VLCuenta: VLCuenta, 
+            VLMonto: VLMonto, 
+            VLFecha: VLFecha,
+            VLResponsable: VLResponsable
     },
     success: (data) => {
       const VLEstado = data.VLRespuesta.estatus
       const VLOperacion = data.VLRespuesta.codigo
       let VLContador = 0
-      if(VLEstado == false){ return }
-
+      if(VLEstado == false) return 
       if(VLModo == 1 && VLOperacion != 0){
         $('#tbL_det_operacion > tr').each((i, e) => {
           $.ajax({
@@ -103,40 +106,31 @@ $('#btnGuardarOperacion').on('click', () => {
               VTCantidad: parseInt($(e).find('.CSS_CANTIDAD').html()),
               VTMonto: parseFloat($(e).find('.VLMONTO').html())
             },
-            success: (data2) => { if(data2.estatus){VLContador++} }
+            success: (data2) => {if(data2.estatus){VLContador++}}
           })
         })
       }
+      FNConsultaEstado();
       PLLimpiar()
     }
   })
-
 })
 
 $('#inp_toperacion, #inp_categoria, #inp_tcategoria').on('change', () => {
   const VLTOPERACION = $("#inp_toperacion").val()
   const VLCATEGORIA = $('#inp_categoria').val()
   const VLTCATEGORIA = $('#inp_tcategoria').val()
-  const VLSUBCATEGORIA = $('#inp_subcategoria').val()
+
+  $('#inp_categoria > option').each((index, element) => {$(element).hide()})
+  $('#inp_tcategoria > option').each((index, element) => {$(element).hide()})
+  $('#inp_subcategoria > option').each((index, element) => {$(element).hide()})
 
   VGMATRIZ.forEach((element, index) => {
-    if(element.cod_toperacion == VLTOPERACION){
-      $(`#inp_toperacion option[value="${element.cod_categoria}"]`).show()
-    }else{
-      $(`#inp_toperacion option[value="${element.cod_categoria}"]`).hide()  
-    }
+    if(element.cod_toperacion == VLTOPERACION){ $(`#inp_categoria option[value="${element.cod_categoria}"]`).show() }
 
-    if((element.cod_toperacion == VLTOPERACION && element.cod_categoria == VLCATEGORIA) || VLTOPERACION == 0){
-      $(`#inp_tcategoria option[value="${element.cod_tcategoria}"]`).show()
-    }else{ 
-      $(`#inp_tcategoria option[value="${element.cod_tcategoria}"]`).hide()
-    }
-    console.log(`Operacion: ${VLTOPERACION}`, `Categoria: ${VLCATEGORIA}`, `Tipo Categoria: ${VLTCATEGORIA}`, `${element.cod_tcategoria}`)
-    if((element.cod_toperacion === VLTOPERACION && element.cod_categoria === VLCATEGORIA && element.cod_tcategoria === VLTCATEGORIA) || (parseInt(VLTOPERACION) == 0 && parseInt(VLCATEGORIA) == 0)){
-      $(`#inp_subcategoria option[value="${element.cod_subcategoria}"]`).show()
-    }else{ 
-      $(`#inp_subcategoria option[value="${element.cod_subcategoria}"]`).hide()
-    }
+    if((element.cod_toperacion == VLTOPERACION && element.cod_categoria == VLCATEGORIA) || VLTOPERACION == 0){ $(`#inp_tcategoria option[value="${element.cod_tcategoria}"]`).show() }
+
+    if((element.cod_toperacion === VLTOPERACION && element.cod_categoria === VLCATEGORIA && element.cod_tcategoria === VLTCATEGORIA) || (parseInt(VLTOPERACION) == 0 && parseInt(VLCATEGORIA) == 0)){ $(`#inp_subcategoria option[value="${element.cod_subcategoria}"]`).show() }
   })
 })
 
@@ -144,7 +138,7 @@ $('#btnShowDetalle').on('click', () => {
   const VLValor = $('#btnShowDetalle').val()
   $('#btnShowDetalle').html(VLValor == 0 ? 'Cancelar Detalle' : 'Agregar Detalle')
   $('#btnShowDetalle').removeClass().addClass(VLValor == 0 ? 'btn btn-outline-danger': 'btn btn-outline-primary')
-  $('#inp_monto').attr('disabled', VLValor == 0)
+  //$('#inp_monto').attr('disabled', VLValor == 0)
   $('#inp_monto').val(0)
   VGContador = 0
   $('#btnShowDetalle').val(VLValor == 0 ? 1: 0)
@@ -195,6 +189,7 @@ function PLMontoDetalle() {
 }
 
 function PLLimpiar(){
+  const VLValor = $('#btnShowDetalle').val()
   $('#inp_toperacion').val(0)
   $('#inp_categoria').val(0)
   $('#inp_subcategoria').val(0)
@@ -205,7 +200,8 @@ function PLLimpiar(){
   $('#inp_cantidad').val('')
   $('#inp_detalle').val('')
   $('#inp_medida').val('')
-  const VLValor = $('#btnShowDetalle').val()
+  $('#inp_responsable').val('')
+  $('#inp_tcategoria').val(0)
   if(VLValor != 0){
     $('#btnShowDetalle').html(VLValor == 0 ? 'Cancelar Detalle' : 'Agregar Detalle')
     $('#btnShowDetalle').removeClass().addClass(VLValor == 0 ? 'btn btn-outline-danger': 'btn btn-outline-primary')
@@ -217,3 +213,5 @@ function PLLimpiar(){
     $('#seccion_detalle').removeClass('show')
   }
 }
+
+$('#btnLimpiar').on('click', () =>{PLLimpiar()})

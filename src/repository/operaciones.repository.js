@@ -12,20 +12,21 @@ export default class OperacionRepository {
     return  result;
   }
 
-  static async insert_operacion ( VLTOperacion, VLCategoria, VLSubcategoria, VLCuenta, VLMonto, VLFecha) {
+  static async insert_operacion ( VLTOperacion, VLCategoria, VLSubcategoria, VLCuenta, VLMonto, VLFecha, VLTCategoria, VLResponsable) {
     let VLCodigo = null, VLReturn = null
-    //! Enviar encabezado
     try {
-      const pool = await getConnection("cam_presupuesto");
+      const pool = await getConnection("presupuesto");
       const result = await pool.request()
         .input('i_operacion', sql.Char, 'I')
-        .input('i_modo', sql.Int, 1)
-        .input('i_toperacion', sql.Int, VLTOperacion)
-        .input('i_categoria', sql.Int, VLCategoria)
-        .input('i_subcategoria', sql.Int, VLSubcategoria)
-        .input('i_cuenta', sql.Int, VLCuenta)
+        .input('i_modo', sql.Int, 0)
+        .input('i_toperacion', sql.VarChar, VLTOperacion)
+        .input('i_categoria', sql.VarChar, VLCategoria)
+        .input('i_tcategoria', sql.VarChar, VLTCategoria)
+        .input('i_subcategoria', sql.VarChar, VLSubcategoria)
+        .input('i_responsable', sql.VarChar, VLResponsable)
+        .input('i_fecha_fac', sql.VarChar, VLFecha)
         .input('i_monto', sql.Money, VLMonto)
-        .input('i_fecha', sql.VarChar, VLFecha)
+        .input('i_cuenta', sql.VarChar, VLCuenta)
         .execute('sp_operacion')
       pool.close()
       VLCodigo = parseInt(result.recordset[0].Codigo);
@@ -63,16 +64,18 @@ export default class OperacionRepository {
 
   static async estado_cuenta(){
     try{
-      const pool = await getConnection('cam_presupuesto');
+      const pool = await getConnection('presupuesto');
+      
       const result = await pool.request()
-        .input('i_operacion', sql.Char, 'C')
-        .input('i_modo', sql.Int, 1)
+        .input('i_operacion', sql.Char, 'Q')
+        .input('i_modo', sql.Int, 2)
         .execute('sp_operacion')
       await pool.close();
+      console.log(result)
       const VLData = result.recordset;
       const VLReturn = parseInt(result.returnValue)
       if (VLReturn != 0){ return {"estatus": false, "mensaje": "Error - insertar operacion" }}
-      return {"estatus": true, "data": VLData, "mensaje": `Todo Correcto`}
+      return {"estatus": true, "DATA": VLData, "mensaje": `Todo Correcto`}
     }catch (error) {
       return { "estatus": false, "mensaje": "2. Error en la base de datos"}
     }

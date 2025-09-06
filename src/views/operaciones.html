@@ -69,11 +69,19 @@
             <input class="form-control form-control-sm" type="date" id="inp_fecha_compra">
           </div>
         </div>
+        <div class="col-3">
+          <div class="mb-3">
+            <label for="inp_responsable" class="form-label">Responsable</label>
+            <input class="form-control form-control-sm" type="text" id="inp_responsable">
+          </div>
+        </div>
+      </div>
+      <div class="row">
         <div class="col-3 pt-4">
           <button type="button" value="0" class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#seccion_detalle" aria-expanded="false" aria-controls="seccion_detalle" id="btnShowDetalle">Agregar Detalle</button>
           <div class="btn-group" role="group" aria-label="Default button group">
             <button type="button" class="btn btn-outline-success" id="btnGuardarOperacion">Guardar</button>
-            <button type="button" class="btn btn-outline-warning">Limpiar</button>
+            <button type="button" class="btn btn-outline-warning" id="btnLimpiar">Limpiar</button>
           </div>
         </div>
       </div>

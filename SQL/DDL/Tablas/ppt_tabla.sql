@@ -21,5 +21,6 @@ insert into ppt_tabla (tb_codigo, tb_tabla) values
 	(1, 'ppt_toperacion'),
 	(2, 'ppt_categoria'),
 	(3, 'ppt_tcategoria'),
-	(4, 'ppt_subcategoria')
+	(4, 'ppt_subcategoria'),
+	(5, 'ppt_cuenta')
 go

@@ -38,8 +38,9 @@ values	('I', 'F', '1', '1'),
 		('E', 'F', '6', '13'),
 		('E', 'F', '7', '14'),
 		('E', 'O', '2', '11'),
-		('E', 'O', '3', '17')
-
+		('E', 'O', '3', '17'),
+		('E', 'O', '5', '18'),
+		('E', 'F', '4', '19')
 				
 go
 
@@ -64,4 +65,5 @@ and mo_tcategoria = c.ca_codigo
 and c.ca_tabla = 3
 and mo_subcategoria = d.ca_codigo
 and d.ca_tabla = 4
+and c.ca_codigo = 2
 	   

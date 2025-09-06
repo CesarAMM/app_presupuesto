@@ -8,7 +8,7 @@ go
 create table ppt_catalogo(
 	ca_tabla	int			not null,
 	ca_codigo	catalogo	not null,
-	ca_valor	varchar(16)	not null,
+	ca_valor	varchar(24)	not null,
 	ca_estado	catalogo	not null
 )
 go
@@ -17,6 +17,18 @@ create unique index idx_tabla_tb_codigo
 	on ppt_catalogo(ca_tabla, ca_codigo)
 go
 
+declare @w_tabla int
+
+select @w_tabla = tb_codigo
+from ppt_tabla
+where tb_tabla = 'ppt_cuenta'
+
+insert into ppt_catalogo (ca_tabla, ca_codigo, ca_valor, ca_estado) 
+values	(@w_tabla, 'CABDR', 'CABDR-4364117745', 'V'),
+		(@w_tabla, 'TCBI', 'TCBI-1490193131', 'V'),
+		(@w_tabla, 'TCBDR', 'TCBDR-40481347', 'V')
+	
+go
 declare @w_tabla int
 
 select @w_tabla = tb_codigo
@@ -55,8 +67,7 @@ values	(@w_tabla, '1', 'SALARIO',		'V'),
 		(@w_tabla, '6',	'QUINCENAS',	'V'),
 		(@w_tabla, '7',	'AHORRO',		'V'),
 		(@w_tabla, '8', 'COMPRAS',		'V'),
-		(@w_tabla, '9', 'BONO',			'V')
-
+		(@w_tabla, '9',	'BONO',			'V')
 		
 go
 declare @w_tabla int
@@ -82,4 +93,6 @@ values	(@w_tabla, '1',		'DANIELA',				'V'),
 		(@w_tabla, '14',	'PLAZO FIJO',			'V'),
 		(@w_tabla, '15',	'MOTO',					'V'),
 		(@w_tabla, '16',	'GASOLINA',				'V'),
-		(@w_tabla, '17',	'STREAMING',			'V')
+		(@w_tabla, '17',	'STREAMING',			'V'),
+		(@w_tabla, '18',	'ADS',					'V'),
+		(@w_tabla, '19',	'MANTENI CUENTA',		'V')
