@@ -1,20 +1,13 @@
-import sql from 'mssql'
-import { DB_PASSWORD, DB_USER, DB_SERVER } from '../config.js'
-
+import sql from 'mssql';
+import dotenv from 'dotenv';
+dotenv.config();
 export const getConnection = async (dbDatabase) => {
-  try {
-    const pool = await sql.connect({
-      user: DB_USER,
-      password: DB_PASSWORD,
-      server: DB_SERVER,
-      database: dbDatabase,
-      options: { 
-        encrypt: false,
-        trustServerCertificate: true  
-      }
-    })
-    return pool
-  }catch (error){
-    return null
-  }
-}
+    const config = {
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        server: process.env.DB_SERVER || 'localhost',
+        database: dbDatabase,
+        options: { encrypt: false, trustServerCertificate: true }
+    };
+    return await sql.connect(config);
+};

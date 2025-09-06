@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "esnext",
+    "outDir": "./src",
+    "rootDir": "./dev",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "strict": true,
+    "lib": ["es2020", "dom", "esnext"]
+  },
+  "include": ["dev"],
+  "exclude": ["public"]
+}
