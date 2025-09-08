@@ -8,7 +8,7 @@
     <section class="container-fluid">
         <div class="card">
             <div class="card-header text-center">
-                <p class="fs-4 fw-bold">Presupuesto</p>
+                <p class="fs-4 fw-bold">Presupuestos</p>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -16,9 +16,10 @@
                         <button type="button" class="btn btn-outline-success" id="btn_agregar_presupuesto">Agregar</button>
                     </div>
                 </div>
-                <div class="row pt-2">
-                    <table class="table table-success table-striped">
-                        <thead class="">
+                <div class="row pt-2 container-fluid">
+                    <table class="table table-striped table-hover table-sm caption-top">
+                        <caption>Listado de Presupuestos</caption>
+                        <thead class="table-light">
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">Descripcion</th>
@@ -37,7 +38,7 @@
         <!--Seccion para agregar un nuevo presupuesto-->
         <div class="card" id="IDCardPresupuesto">
             <div class="card-body">
-                <div class="border-bottom border-black border-2 py-3">
+                <div class="border-bottom border-black border-2 my-3">
                     <div class="row">
                         <div class="col-md-5 mb-3">
                             <label for="basic-url" class="form-label">Descripcion</label>
@@ -45,36 +46,92 @@
                                 <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4">
                             </div>
                         </div>
-                        <div class="col-md-3 mb-3">
-                            <label for="basic-url" class="form-label">Fecha Inicio:</label>
+                        <div class="col-md-2 mb-3">
+                            <label for="basic-url" class="form-label">Total Ingresos:</label>
                             <div class="input-group input-group-sm mb-3">
-                                <input type="date" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4">
+                                <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4">
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <label for="basic-url" class="form-label">Fecha Fin:</label>
+                        <div class="col-md-2">
+                            <label for="basic-url" class="form-label">Total de Egresos:</label>
                             <div class="input-group input-group-sm mb-3">
-                                <input type="date" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4">
+                                <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4">
                             </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-md-2 mb-2">
+                            <label for="inpFechaIni" class="form-label fw-bold">Fecha Inicio:</label>
+                            <div class="input-group input-group-sm mb-2">
+                                <input type="date" class="form-control" id="inpFechaIni" aria-describedby="basic-addon3 basic-addon4">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="inpFechaFin" class="form-label text-small">Fecha Fin:</label>
+                            <div class="input-group input-group-sm mb-2">
+                                <input type="date" class="form-control" id="inpFechaFin" aria-describedby="basic-addon3 basic-addon4">
+                            </div>
+                        </div>
+                        <div class="col-md-2 pt-4">
                             <button type="button" class="btn btn-outline-success">Guardar</button>
                         </div>
                     </div>
                 </div>
-                <div class="row py-2">
+                <div class="row my-2">
                     <div class="col-md-3 text-center">
                         <p class="fs-5 fw-bold">Agregar</p>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row my-2">
                     <div class="col-md-3">
                         <select class="form-select form-select-sm mb-3" id="IDTipo">
                             <option value="0" selected> -- Seleccione Tipo -- </option>
                         </select>
                     </div>
+                    <div class="col-md-3">
+                        <select class="form-select form-select-sm mb-3" id="IDSubTipo">
+                            <option value="0" selected> -- Seleccione Sub Tipo -- </option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select form-select-sm mb-3" id="IDSubTipo">
+                            <option value="0" selected> -- Seleccione Categoria -- </option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select form-select-sm mb-3" id="IDSubTipo">
+                            <option value="0" selected> -- Seleccione Sub Categoria -- </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="input-group input-group-sm mb-2">
+                            <span class="input-group-text" id="inpMonto">Q</span>
+                            <input type="text" class="form-control" id="IDMonto" aria-describedby="inpMonto">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-outline-success btn-sm" id="ID_BTN_ADD_DETALLE">Agregar</button>
+                    </div>
+                </div>
+                <div class="row container-fluid">
+                    <table class="table table-striped table-hover table-sm caption-top">
+                        <caption>Tabla de Presupuesto</caption>
+                        <thead class="table-light">
+                            <tr>
+                                <th>-</th>
+                                <th>Tipo</th>
+                                <th>Sub Tipo</th>
+                                <th>Categoria</th>
+                                <th>Sub Categoria</th>
+                                <th class="border-izquierdo">Ingreso</th>
+                                <th>Egreso</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-group-divider" id="IDTB_detalle_presupuesto">
+                        
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

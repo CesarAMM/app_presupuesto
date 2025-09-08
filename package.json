@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "node --watch src/dist/index.js",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "dev:all": "concurrently \"npm run dev\" \"npm start\""
   },
   "keywords": [],
   "author": "",
@@ -29,6 +30,7 @@
     "@types/jquery": "^3.5.33",
     "@types/mssql": "^9.1.8",
     "@types/node": "^24.3.1",
+    "concurrently": "^9.2.1",
     "globals": "^15.12.0",
     "standard": "^17.1.2",
     "typescript": "^5.9.2"

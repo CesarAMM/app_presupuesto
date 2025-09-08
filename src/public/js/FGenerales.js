@@ -21,8 +21,21 @@ function PLImpMoneda(VTValor){
 }
 
 function FGLlenarSelect(IdElement, args, descripcion){
+  console.log(args)
   $('#'+IdElement).html('<option value="0" selected>'+descripcion+'</option>')
   $(args).each((i, e) => {
-    $('#'+IdElement).append(`<option value="${e.ca_codigo}">${e.ca_valor}</option>`)
+    $('#'+IdElement).append(`<option value="${e.CODIGO}">${e.VALOR}</option>`)
+  })
+}
+
+function FGCatalogo(IdElement, tabla){
+  $.ajax({
+    url: '/catalogo', timeout: 15000, method: 'POST', data: {tabla: tabla},
+    success: (respuesta) => {
+      console.log(respuesta)
+      if(respuesta.status){
+        FGLlenarSelect(IdElement, respuesta.data, 'Seleccione una opción')
+      }
+    }
   })
 }

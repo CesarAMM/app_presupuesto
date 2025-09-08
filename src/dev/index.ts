@@ -10,6 +10,7 @@ import router_index from './routes/index.routes.js'
 import router_operacion from './routes/operacion.routes.js'
 import router_reporte from './routes/reporte.routes.js'
 import router_presupuesto from './routes/presupuesto.routes.js'
+import router_general from './routes/general.routes.js'
 //! CONFIGURACIONES CONSTANTES
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use(router_index)
 app.use(router_operacion)
 app.use(router_reporte)
 app.use(router_presupuesto)
+app.use(router_general)
 //! CONSTANTES
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(express.static(path.join(__dirname, '../node_modules/bootstrap/dist/js')));

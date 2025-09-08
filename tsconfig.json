@@ -5,10 +5,13 @@
     "outDir": "./src/dist",
     "rootDir": "./src/dev",
     "moduleResolution": "node",
+    "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
     "strict": true,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
     "lib": ["es2020", "dom", "esnext"]
   },
-  "include": ["src/dev"],
-  "exclude": ["public"]
+  "include": ["src/dev"]
 }
