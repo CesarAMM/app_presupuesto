@@ -5,7 +5,6 @@ import path, {dirname} from 'path';
 import {fileURLToPath} from 'url'
 import dotenv from 'dotenv';
 
-
 //! RUTAS
 import router_index from './routes/index.routes.js'
 import router_operacion from './routes/operacion.routes.js'

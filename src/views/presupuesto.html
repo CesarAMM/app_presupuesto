@@ -11,24 +11,74 @@
                 <p class="fs-4 fw-bold">Presupuesto</p>
             </div>
             <div class="card-body">
-                <table class="table table-success table-striped">
-                    <thead class="">
-                        <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Descripcion</th>
-                            <th scope="col">Monto</th>
-                            <th scope="col">Estado</th>
-                            <th scope="col"></th>
-                            <th scope="col"></th>
-                        </tr>
-                    </thead>
-                    <tbody class="table-group-divider" id="tblDataPresupuesto">
-
-                    </tbody>
-                </table>
+                <div class="row">
+                    <div class="col-3">
+                        <button type="button" class="btn btn-outline-success" id="btn_agregar_presupuesto">Agregar</button>
+                    </div>
+                </div>
+                <div class="row pt-2">
+                    <table class="table table-success table-striped">
+                        <thead class="">
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Descripcion</th>
+                                <th scope="col">Monto</th>
+                                <th scope="col">Estado</th>
+                                <th scope="col"></th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-group-divider" id="tblDataPresupuesto"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
-        
+
+        <!--Seccion para agregar un nuevo presupuesto-->
+        <div class="card" id="IDCardPresupuesto">
+            <div class="card-body">
+                <div class="border-bottom border-black border-2 py-3">
+                    <div class="row">
+                        <div class="col-md-5 mb-3">
+                            <label for="basic-url" class="form-label">Descripcion</label>
+                            <div class="input-group input-group-sm mb-3">
+                                <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4">
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="basic-url" class="form-label">Fecha Inicio:</label>
+                            <div class="input-group input-group-sm mb-3">
+                                <input type="date" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="basic-url" class="form-label">Fecha Fin:</label>
+                            <div class="input-group input-group-sm mb-3">
+                                <input type="date" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-outline-success">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row py-2">
+                    <div class="col-md-3 text-center">
+                        <p class="fs-5 fw-bold">Agregar</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <select class="form-select form-select-sm mb-3" id="IDTipo">
+                            <option value="0" selected> -- Seleccione Tipo -- </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </section>
     <%-include ('components/scripts.html') %>
     <script src="js/presupuesto.js"></script>
