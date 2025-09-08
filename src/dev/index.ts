@@ -5,17 +5,17 @@ import path, {dirname} from 'path';
 import {fileURLToPath} from 'url'
 import dotenv from 'dotenv';
 
-
 //! RUTAS
 import router_index from './routes/index.routes.js'
 import router_operacion from './routes/operacion.routes.js'
 import router_reporte from './routes/reporte.routes.js'
 import router_presupuesto from './routes/presupuesto.routes.js'
+import router_general from './routes/general.routes.js'
 //! CONFIGURACIONES CONSTANTES
 dotenv.config();
 
 const app = express();
-const __dirname = dirname(fileURLToPath(import.meta.url))
+const __dirname = path.dirname(dirname(fileURLToPath(import.meta.url)))
 const PORT = process.env.PORT || 8030
 //! MIDELWERS
 app.set('views', path.join(__dirname, 'views'));
@@ -30,6 +30,7 @@ app.use(router_index)
 app.use(router_operacion)
 app.use(router_reporte)
 app.use(router_presupuesto)
+app.use(router_general)
 //! CONSTANTES
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(express.static(path.join(__dirname, '../node_modules/bootstrap/dist/js')));
