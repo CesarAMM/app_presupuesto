@@ -1,3 +1,7 @@
+# modulos de Node
 node_modules
+# archivos de entorno
 .env
+# compilados de TypeScript
 src/dist
+package-lock.json

@@ -28,13 +28,13 @@ function FGLlenarSelect(IdElement, args, descripcion){
   })
 }
 
-function FGCatalogo(IdElement, tabla){
+function FGCatalogo(IdElement, tabla, descripcion){
   $.ajax({
     url: '/catalogo', timeout: 15000, method: 'POST', data: {tabla: tabla},
     success: (respuesta) => {
       console.log(respuesta)
       if(respuesta.status){
-        FGLlenarSelect(IdElement, respuesta.data, 'Seleccione una opción')
+        FGLlenarSelect(IdElement, respuesta.data, descripcion)
       }
     }
   })

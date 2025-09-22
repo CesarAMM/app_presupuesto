@@ -15,7 +15,7 @@ router.get('/reporte', (req: Request, res: Response)=>{
 })
 
 router.get('/presupuesto', async (req: Request, res: Response) => {
-  res.render("presupuesto.html", {title: "Presupuesto"})
+  res.render("presupuesto.html", {title: "Ingreso de Presupuesto"})
 })
 
 export default router;

@@ -3,6 +3,7 @@ import GeneralesRepository from '../repository/generales.repository.js';
 import ContextGeneral from '../context/general.context.js';
 const router = Router();
 router.post('/catalogo', async (req, res) => {
-    res.json(await ContextGeneral.getcCatalogo(await GeneralesRepository.data_catalogo(req)));
+    const respuesto = await GeneralesRepository.data_catalogo(req);
+    res.json(await ContextGeneral.getcCatalogo(respuesto));
 });
 export default router;

@@ -2,8 +2,8 @@
   "compilerOptions": {
     "target": "es2020",
     "module": "esnext",
-    "outDir": "./src/dist",
-    "rootDir": "./src/dev",
+    "outDir": "./src",
+    "rootDir": "./dev",
     "moduleResolution": "node",
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
@@ -13,5 +13,5 @@
     "resolveJsonModule": true,
     "lib": ["es2020", "dom", "esnext"]
   },
-  "include": ["src/dev"]
+  "include": ["dev"]
 }
