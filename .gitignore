@@ -3,6 +3,10 @@ node_modules
 # archivos de entorno
 .env
 # compilados de TypeScript
-
+src/config/*.js
+src/context/*.js
+src/repository/*.js
+src/routes/*.js
+src/index.js
 
 package-lock.json
