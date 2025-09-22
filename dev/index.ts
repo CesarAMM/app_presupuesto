@@ -11,7 +11,7 @@ import rateLimit from "express-rate-limit";
 import pino from "pino";
 
 //! RUTAS
-import router_index from './routes/index.routes.js'
+import router_index from './index.routes.js'
 import router_operacion from './routes/operacion.routes.js'
 import router_reporte from './routes/reporte.routes.js'
 import router_presupuesto from './routes/presupuesto.routes.js'
@@ -20,7 +20,7 @@ import router_general from './routes/general.routes.js'
 dotenv.config();
 
 const app = express();
-const __dirname = path.dirname(dirname(fileURLToPath(import.meta.url)))
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 8030
 const logger = pino({ transport: { target: 'pino-pretty' } });
 
