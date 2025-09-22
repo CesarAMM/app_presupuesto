@@ -37,11 +37,9 @@ app.use(bodyParser.json({limit: '50mb'}))
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true, parameterLimit: 100000000000}));
 
 app.use((req, res, next) => {
-  logger.info({
-    url: req.url,
-    method: req.method
-  });
+  logger.info({ url: req.url, method: req.method});
   next();
+
 });
 //! RUTAS DE LA APLICACION
 app.use(router_index)
