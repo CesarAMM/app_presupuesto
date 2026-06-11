@@ -1,7 +1,8 @@
 import { getConnection } from '../config/database';
 import { IClasificacionGasto } from '../interfaces/ClasificacionGasto'
 
-export const getClasificacionGasto = async (): Promise<IClasificacionGasto[]> => {
+/* OPTENER ARBOL DE CLASIFICACION DE GASTOS */
+export const listClasificacionGastoDB = async (): Promise<IClasificacionGasto[]> => {
     const pool = await getConnection();
     const result = await pool.request().query(`
         select * from metadata.clasificacion_gasto
@@ -10,4 +11,8 @@ export const getClasificacionGasto = async (): Promise<IClasificacionGasto[]> =>
     `)
     pool.close();
     return result.recordset;
+}
+
+export const setClasificacionGastoDB = async () =>{
+    
 }
