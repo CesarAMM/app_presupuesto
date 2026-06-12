@@ -40,7 +40,7 @@ insert into metadata.catalogo values
 (1, 1, 'HABILITADO', 1)
 
 
--- DML: ESTADOS
+-- DML: Tipo Transaccion
 insert into metadata.tabla values
 (2, 'tbl_tipo_transaccion', 'Tipo de transacción')
 

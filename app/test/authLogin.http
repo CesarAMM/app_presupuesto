@@ -1,0 +1,9 @@
+### Inicio de Session
+POST http://localhost:3000/api/core/login_auth
+Content-Type: application/json
+Authorization: Basic {{$dotenv API_USER}} {{$dotenv API_PASSWORD}}
+
+{
+    "username": "cmazariegos",
+    "password": "123456"
+}

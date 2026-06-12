@@ -1,6 +1,8 @@
 export interface IUsusario {
     usuario: number;
-    username: string;
-    password: string;
+    user_login: string;
+    password_has: string;
+    codigo: number;
+    valor: string;
     estado: number;
 }
