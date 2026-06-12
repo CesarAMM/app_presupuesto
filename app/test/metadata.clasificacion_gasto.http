@@ -1,4 +1,0 @@
-### Consulta de Clasificacion de Gastos
-GET http://localhost:3000/api/metadata/clasificacion_gasto
-Content-Type: application/json
-Authorization: Basic {{$dotenv API_USER}} {{$dotenv API_PASSWORD}}

@@ -30,3 +30,23 @@ go
 create nonclustered index dix_matriz_presupuesto 
 ON core.matriz_presupuesto (presupuesto, indice)
 go
+
+use dp_presupuesto
+go
+
+if object_id('core.usuario') is not null
+	drop table core.usuario
+go
+
+create table core.usuario (
+	usuario			int not null primary key,
+	user_login		varchar(15) not null,
+	password_has	varchar(255) not null,
+	rol				int not null,
+	estado			smallint not null default 1
+)
+go
+
+
+insert into core.usuario (usuario, user_login, rol, password_has)
+values (1, 'cmazariegos', 1, '123456')

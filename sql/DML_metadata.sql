@@ -48,6 +48,16 @@ insert into metadata.catalogo values
 (2, 1, 'FIJO', 1),
 (2, 2, 'VARIABLE', 1),
 (2, 3, 'OCACIONAL', 1)
+go
+
+insert into metadata.tabla values
+(3, 'tbl_rol', 'Roles registrados')
+
+insert into metadata.catalogo values 
+(3, 1, 'ADMINISTRADOR', 1),
+(3, 2, 'CONSULTA', 1)
+
+
 
 select * 
 from metadata.tabla t
