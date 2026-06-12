@@ -1,2 +1,26 @@
 */.env
 */node_modules
+
+# Logs
+app-presupuesto-cliente/logs
+app-presupuesto-cliente/*.log
+app-presupuesto-cliente/npm-debug.log*
+app-presupuesto-cliente/yarn-debug.log*
+app-presupuesto-cliente/yarn-error.log*
+app-presupuesto-cliente/pnpm-debug.log*
+app-presupuesto-cliente/lerna-debug.log*
+
+app-presupuesto-cliente/dist
+app-presupuesto-cliente/dist-ssr
+app-presupuesto-cliente/*.local
+
+# Editor directories and files
+*/.vscode/*
+*/!.vscode/extensions.json
+*/.idea
+*/.DS_Store
+*/*.suo
+*/*.ntvs*
+*/*.njsproj
+*/*.sln
+*/*.sw?
