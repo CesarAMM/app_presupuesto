@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, use} from 'react';
 import { Card, Form, Button, Table, Row, Col, InputGroup, Alert } from 'react-bootstrap';
 import {api} from '../services/api';
 
@@ -29,12 +29,13 @@ export default function Presupuesto() {
   const [divisionClasificacion, setDivisionClasificacion] = useState<string[]>(['']);
   const [matrizPresupuesto, setMatrizPresupuesto] = useState<ItemPresupuesto[]>([]);
   const [mensaje, setMensaje] = useState<{tipo: string; texto: string} | null>(null);
-  const [catalogoClasificacion, setCatalogoClasificacion] = useState<any[]>([]);
   const [cargandoCatalogos, setCargaCatalogos] = useState(false);
   
-  // --- CONSULTAR
+  // --- CONSULTAR EN LA BASE DE DATOS
   const [dbCategorias, setDBCategorias] = useState<any[]>([]);
+  const [dbTipoOeracion, setDBTipoOperacion] = useState<any[]>([])
 
+  const [lstDivisionOperaciones, setLstDivisionOperaciones] = useState<any[]>([]); 
   //  --- MANEJO DE CAMPOS DINAMICOS AUTIMATICOS --
   const handleDivisionClasificacion = (index: number, valor: string) => {
     const nuevasDivisiones = [...divisionClasificacion];
@@ -104,15 +105,28 @@ export default function Presupuesto() {
     }
   }
 
-  
-  
+  const isNull = (valor: string | null | undefined): boolean =>{
+    if (!valor) return true;
+    if (valor === "null" || valor === "undefined") return true;
+    if (valor.trim() === "") return true;
+    return false
+  }
+
   useEffect(()  => {
     const obtenerCatalogo = async () => {
       setCargaCatalogos(true);
       try {
         const respuesta = await api.get('/metadata/clasificacion_gasto');
         if(respuesta.data.ok){
-          setDBCategorias(respuesta.data.data)
+
+          const lstTipoOperaciones = respuesta.data.data.filter((dato: any) => isNull(dato.padre))
+          const lstCategoria = respuesta.data.data.filter((dato: any) => dato.clasificacion.length === 3)
+
+          setDBTipoOperacion(lstTipoOperaciones)
+          setDBCategorias(lstCategoria)
+
+          setLstDivisionOperaciones(respuesta.data.data);
+          
         }
       } catch (error) {
         console.log(error)
@@ -123,6 +137,14 @@ export default function Presupuesto() {
     obtenerCatalogo();
   }, []);
 
+  const fnTipoOperacion = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const idTipoOperacion = e.target.value;
+    const strTipoOperacion = lstDivisionOperaciones.find((dato:any) => dato.clasificacion === idTipoOperacion)
+    
+    const tmpCategoria = lstDivisionOperaciones.filter((dato: any) => dato.padre === idTipoOperacion)
+    setDBCategorias(tmpCategoria)
+    setTipoOperacion(strTipoOperacion.valor)
+  }
 
   return (
     <div className="container mt-2 mb-5">
@@ -141,10 +163,17 @@ export default function Presupuesto() {
               
               <Form.Group className="mb-3">
                 <Form.Label>Tipo Operación <span className="text-danger">*</span></Form.Label>
-                <Form.Select value={tipoOperacion} onChange={(e) => setTipoOperacion(e.target.value)} required>
+                <Form.Select
+                  onChange={fnTipoOperacion} 
+                  disabled={cargandoCatalogos}
+                  required>
                   <option value="">-- Selecciona --</option>
-                  <option value="Ingreso">Ingreso</option>
-                  <option value="Egreso">Egreso</option>
+                  {/* Aquí React "dibuja" las opciones desde la Base de Datos */}
+                  {dbTipoOeracion.map((item) => (
+                    <option key={item.clasificacion} value={item.clasificacion}>
+                      {item.clasificacion} {item.valor}
+                    </option>
+                  ))}
                 </Form.Select>
               </Form.Group>
 
@@ -152,9 +181,9 @@ export default function Presupuesto() {
                 <Form.Label>Frecuencia <span className="text-danger">*</span></Form.Label>
                 <Form.Select value={frecuencia} onChange={(e) => setFrecuencia(e.target.value)} required>
                   <option value="">-- Selecciona --</option>
-                  <option value="Fijo">Fijo</option>
-                  <option value="Variable">Variable</option>
-                  <option value="Ocasional">Ocasional</option>
+                  <option value="1">FIJO</option>
+                  <option value="2">VARIABLE</option>
+                  <option value="3">OCACIONAL</option>
                 </Form.Select>
               </Form.Group>
 
@@ -178,10 +207,8 @@ export default function Presupuesto() {
               <Form.Group className="mb-3">
                 <Form.Label>Sub-Clasificación <span className="text-danger">*</span></Form.Label>
                 <Form.Control 
-                  type="text" 
-                  placeholder="Ej: Combustible, Supermercado" 
-                  value={subClasificacion} 
-                  onChange={(e) => setSubClasificacion(e.target.value)}
+                  onChange = {(e) => setSubClasificacion(e.target.value)}
+                  disabled = {cargandoCatalogos}
                   required 
                 />
               </Form.Group>
