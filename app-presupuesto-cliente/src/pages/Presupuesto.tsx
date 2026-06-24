@@ -2,74 +2,57 @@ import React, {useState, useEffect, use} from 'react';
 import { Card, Form, Button, Table, Row, Col, InputGroup, Alert } from 'react-bootstrap';
 import {api} from '../services/api';
 
+interface Item{
+  id: string;
+  descripcion: string;
+}
+
 interface ItemPresupuesto {
   idLocal: number;
-  tipoOperacion: string;
-  frecuencia: string;
-  clasificacion: string;
-  subClasificacion: string;
-  divisionClasificacion: string[];
+  tipoOperacion: Item;
+  frecuencia: Item;
+  categoria: Item;
+  subCategoria: Item;
   monto: number;
 }
 
-interface ItemClasificacion {
-  clasificacion: string;
-  estado: number;
-  padre: string | null;
-  valor: string;
-}
 
 export default function Presupuesto() {
-  // -- ESTADOS --
-  const [tipoOperacion, setTipoOperacion] = useState('');
-  const [frecuencia, setFrecuencia] = useState('');
-  const [clasificacion, setClasificacion] = useState('');
-  const [subClasificacion, setSubClasificacion] = useState('');
-  const [monto, setMonto] = useState('');
-  const [divisionClasificacion, setDivisionClasificacion] = useState<string[]>(['']);
-  const [matrizPresupuesto, setMatrizPresupuesto] = useState<ItemPresupuesto[]>([]);
+  //  --- CONSULTA GENERAL 
+  const [lstDivisionOperaciones, setLstDivisionOperaciones] = useState<any[]>([]); 
   const [mensaje, setMensaje] = useState<{tipo: string; texto: string} | null>(null);
   const [cargandoCatalogos, setCargaCatalogos] = useState(false);
   
+  // -- ESTADOS DE LOS ELEMENTOS INDIVIDUALES
+  const [monto, setMonto] = useState(''); 
+  const [tipoOperacion, setTipoOperacion] = useState<Item | null >(null);
+  const [frecuencia, setFrecuencia] = useState<Item | null >(null);
+  const [categoria, setCategoria] = useState<Item | null >(null);
+  const [subCategoria, setSubCategoria] = useState<Item | null >(null);
+  
+  // -- ESTADOS DE LOS ARREGLOS
+  const [matrizPresupuesto, setMatrizPresupuesto] = useState<ItemPresupuesto[]>([]);
+  
   // --- CONSULTAR EN LA BASE DE DATOS
   const [dbCategorias, setDBCategorias] = useState<any[]>([]);
-  const [dbTipoOeracion, setDBTipoOperacion] = useState<any[]>([])
-
-  const [lstDivisionOperaciones, setLstDivisionOperaciones] = useState<any[]>([]); 
-  //  --- MANEJO DE CAMPOS DINAMICOS AUTIMATICOS --
-  const handleDivisionClasificacion = (index: number, valor: string) => {
-    const nuevasDivisiones = [...divisionClasificacion];
-    nuevasDivisiones[index] = valor;
-    
-    if(index === nuevasDivisiones.length -1 && valor.trim() !== ''){
-      nuevasDivisiones.push('');
-    }
-
-    if(valor.trim() === '' && index < nuevasDivisiones.length - 1 && nuevasDivisiones.length > 1){
-      nuevasDivisiones.splice(index, 1);
-    }
-
-    setDivisionClasificacion(nuevasDivisiones);
-  }
+  const [dbTipoOeracion, setDBTipoOperacion] = useState<any[]>([]);
+  const [dbSubCategoria, setDBSubCategoria] = useState<any[]>([]);
 
   // --- BOTON 1: "GUARDAR" (Traslado de informacion a la matriz local) ---
   const handleAgregar = (e: React.FormEvent)=> {
     e.preventDefault();
 
-    if(!tipoOperacion || !frecuencia || !clasificacion || !subClasificacion || !monto){
+    if(!tipoOperacion || !frecuencia || !categoria || !subCategoria || !monto){
       alert("Por fabor completa todos los campos obligatorios.")
       return;
     }
-
-    const extrasLimpias = divisionClasificacion.filter(div => div.trim() !== '');
 
     const nuevoItem: ItemPresupuesto = {
       idLocal: Date.now(),
       tipoOperacion,
       frecuencia,
-      clasificacion,
-      subClasificacion,
-      divisionClasificacion: extrasLimpias,
+      categoria,
+      subCategoria,
       monto: parseFloat(monto)
     }
 
@@ -77,12 +60,11 @@ export default function Presupuesto() {
     setMatrizPresupuesto([...matrizPresupuesto, nuevoItem]);
 
     // Limpiar el formulario
-    setTipoOperacion('');
-    setFrecuencia('');
-    setClasificacion('');
-    setSubClasificacion('');
+    setTipoOperacion(null);
+    setFrecuencia(null);
+    setCategoria(null);
+    setSubCategoria(null);
     setMonto('');
-    setDivisionClasificacion(['']);
 
     setMensaje({ tipo: 'success', texto: 'Registro trasladado a la matriz.'})
     setTimeout(() => setMensaje(null), 3000)
@@ -143,7 +125,16 @@ export default function Presupuesto() {
     
     const tmpCategoria = lstDivisionOperaciones.filter((dato: any) => dato.padre === idTipoOperacion)
     setDBCategorias(tmpCategoria)
-    setTipoOperacion(strTipoOperacion.valor)
+    setTipoOperacion({id: strTipoOperacion.clasificacion, descripcion: strTipoOperacion.valor})
+  }
+
+  const fnClasificacion = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const idCategoria = e.target.value;
+    const strCategoria = lstDivisionOperaciones.find((dato: any) => dato.clasificacion === idCategoria);
+    const tmpSubCategoria = lstDivisionOperaciones.filter((data: any)=> data.padre === idCategoria);
+
+    setDBSubCategoria(tmpSubCategoria);
+    setCategoria(strCategoria.valor)
   }
 
   return (
@@ -179,7 +170,7 @@ export default function Presupuesto() {
 
               <Form.Group className="mb-3">
                 <Form.Label>Frecuencia <span className="text-danger">*</span></Form.Label>
-                <Form.Select value={frecuencia} onChange={(e) => setFrecuencia(e.target.value)} required>
+                <Form.Select value={frecuencia?.id} onChange={(e) => setFrecuencia({id: e.target.value, descripcion: ""})} required>
                   <option value="">-- Selecciona --</option>
                   <option value="1">FIJO</option>
                   <option value="2">VARIABLE</option>
@@ -190,7 +181,7 @@ export default function Presupuesto() {
               <Form.Group className="mb-3">
                 <Form.Label>Clasificación <span className="text-danger">*</span></Form.Label>
                 <Form.Select 
-                  onChange={(e) => {setClasificacion(e.target.value)}}
+                  onChange={fnClasificacion}
                   disabled={cargandoCatalogos}
                   required 
                 >
@@ -206,11 +197,13 @@ export default function Presupuesto() {
 
               <Form.Group className="mb-3">
                 <Form.Label>Sub-Clasificación <span className="text-danger">*</span></Form.Label>
-                <Form.Control 
-                  onChange = {(e) => setSubClasificacion(e.target.value)}
+                <Form.Select 
+                  onChange = {(e) => setSubCategoria({id: e.target.value, descripcion: ""})}
                   disabled = {cargandoCatalogos}
                   required 
-                />
+                >
+
+                </Form.Select>
               </Form.Group>
 
               <Form.Group className="mb-4">
@@ -227,26 +220,6 @@ export default function Presupuesto() {
                   />
                 </InputGroup>
               </Form.Group>
-
-              {/* === SECCIÓN DINÁMICA AUTOMÁTICA === */}
-              <div className="bg-light p-3 rounded mb-4">
-                <Form.Label className="text-muted fw-bold small">
-                  ⚙️ Subdivisiones / Categorías Adicionales (Opcional)
-                </Form.Label>
-                <p className="text-muted text-xs style={{fontSize: '11px'}} mb-2">
-                  * Al escribir en el último campo, aparecerá otro espacio automáticamente.
-                </p>
-                {divisionClasificacion.map((division, index) => (
-                  <Form.Group key={index} className="mb-2">
-                    <Form.Control
-                      type="text"
-                      placeholder={`Otra división (Nivel ${index + 3})`}
-                      value={division}
-                      onChange={(e) => handleDivisionClasificacion(index, e.target.value)}
-                    />
-                  </Form.Group>
-                ))}
-              </div>
 
               {/* BOTÓN 1 */}
               <Button variant="success" type="submit" className="w-100 fw-bold">
@@ -286,19 +259,13 @@ export default function Presupuesto() {
                     ) : (
                       matrizPresupuesto.map((item) => (
                         <tr key={item.idLocal}>
-                          <td className={item.tipoOperacion === 'Ingreso' ? 'text-success fw-bold' : 'text-danger fw-bold'}>
-                            {item.tipoOperacion}
+                          <td className={item.tipoOperacion.id === '1' ? 'text-success fw-bold' : 'text-danger fw-bold'}>
+                            {item.tipoOperacion.descripcion}
                           </td>
-                          <td>{item.frecuencia}</td>
-                          <td>{item.clasificacion}</td>
+                          <td>{item.frecuencia.descripcion}</td>
+                          <td>{item.categoria.descripcion}</td>
                           <td>
-                            {item.subClasificacion}
-                            {/* Breve indicador visual por si tiene campos ocultos almacenados */}
-                            {item.divisionClasificacion.length > 0 && (
-                              <div className="text-muted" style={{ fontSize: '10px' }}>
-                                (+{item.divisionClasificacion.length} subniveles en matriz)
-                              </div>
-                            )}
+                            {item.subCategoria.descripcion}
                           </td>
                           <td className="fw-bold">Q {item.monto.toFixed(2)}</td>
                         </tr>
