@@ -1,5 +1,5 @@
-import React, {useState, useEffect, use} from 'react';
-import { Card, Form, Button, Table, Row, Col, InputGroup, Alert } from 'react-bootstrap';
+import React, {useState, useEffect} from 'react';
+import { Card, Form, Button, Table, Row, Col, InputGroup, Alert, Modal} from 'react-bootstrap';
 import {api} from '../services/api';
 
 interface Item{
@@ -22,8 +22,11 @@ export default function Presupuesto() {
   const [lstDivisionOperaciones, setLstDivisionOperaciones] = useState<any[]>([]); 
   const [mensaje, setMensaje] = useState<{tipo: string; texto: string} | null>(null);
   const [cargandoCatalogos, setCargaCatalogos] = useState(false);
+  const [isShowModalTree, setIsShowModalTree] = useState(false);
   
   // -- ESTADOS DE LOS ELEMENTOS INDIVIDUALES
+  const [fechaIni, setFechaIni] = useState('');
+  const [fechaFin, setFechaFin] = useState('');
   const [monto, setMonto] = useState(''); 
   const [tipoOperacion, setTipoOperacion] = useState<Item | null >(null);
   const [frecuencia, setFrecuencia] = useState<Item | null >(null);
@@ -36,8 +39,17 @@ export default function Presupuesto() {
   // --- CONSULTAR EN LA BASE DE DATOS
   const [dbCategorias, setDBCategorias] = useState<any[]>([]);
   const [dbTipoOeracion, setDBTipoOperacion] = useState<any[]>([]);
-  const [dbSubCategoria, setDBSubCategoria] = useState<any[]>([]);
+  
+  const TotalIngresos = matrizPresupuesto
+    .filter(item => item.tipoOperacion.id === "1")
+    .reduce((acumulado, item) => acumulado + item.monto, 0)
+  
+  const TotalEgresos = matrizPresupuesto
+    .filter(item => item.tipoOperacion.id === "2")
+    .reduce((acumulado, item) => acumulado + item.monto, 0)
 
+  const TotalNeto = TotalIngresos - TotalEgresos;
+  
   // --- BOTON 1: "GUARDAR" (Traslado de informacion a la matriz local) ---
   const handleAgregar = (e: React.FormEvent)=> {
     e.preventDefault();
@@ -87,6 +99,15 @@ export default function Presupuesto() {
     }
   }
 
+  const handleFrecuenciaChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const idSeleccionado = e.target.value;
+    const idxSelect = e.target.selectedIndex;
+    setFrecuencia({
+      id: idSeleccionado,
+      descripcion: e.target.options[idxSelect].text
+    })
+  }
+
   const isNull = (valor: string | null | undefined): boolean =>{
     if (!valor) return true;
     if (valor === "null" || valor === "undefined") return true;
@@ -119,7 +140,7 @@ export default function Presupuesto() {
     obtenerCatalogo();
   }, []);
 
-  const fnTipoOperacion = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleTipoOperacion = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const idTipoOperacion = e.target.value;
     const strTipoOperacion = lstDivisionOperaciones.find((dato:any) => dato.clasificacion === idTipoOperacion)
     
@@ -128,14 +149,64 @@ export default function Presupuesto() {
     setTipoOperacion({id: strTipoOperacion.clasificacion, descripcion: strTipoOperacion.valor})
   }
 
-  const fnClasificacion = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleClasificacionOnChage = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const idCategoria = e.target.value;
     const strCategoria = lstDivisionOperaciones.find((dato: any) => dato.clasificacion === idCategoria);
-    const tmpSubCategoria = lstDivisionOperaciones.filter((data: any)=> data.padre === idCategoria);
-
-    setDBSubCategoria(tmpSubCategoria);
-    setCategoria(strCategoria.valor)
+    setCategoria({id: strCategoria.clasificacion, descripcion: strCategoria.valor})
   }
+
+  const createTree = (nodoPadre: string): any[] =>{
+    return lstDivisionOperaciones
+      .filter(item => item.padre === nodoPadre)
+      .map(item => ({
+        ...item,
+        hijos: createTree(item.clasificacion)
+      }));
+  }
+
+  const branchTree = categoria ? createTree(categoria.id) : [];
+
+  const NodoArbolVisual = ({ nodo, nivel = 0 }: { nodo: any; nivel: number }) => {
+    const esHoja = !nodo.hijos || nodo.hijos.length === 0;
+    return (
+      <div style={{ marginLeft: `${nivel * 25}px` }} className="mb-2">
+        <div className="d-flex align-items-center justify-content-between p-2 rounded bg-light hover-shadow-sm border-start border-primary border-3">
+          <div>
+            <span className="me-2">{nivel === 0 ? '📁' : '📄'}</span>
+            <strong>{nodo.valor}</strong> 
+            <span className="text-muted small ms-2">({nodo.clasificacion})</span>
+          </div>
+          {esHoja ? (
+            <Button 
+              variant="outline-success" 
+              size="sm" 
+              className="py-0 px-2 text-xs"
+              onClick={() => {
+                setSubCategoria({id: nodo.clasificacion, descripcion: nodo.valor});
+                setIsShowModalTree(false);
+              }}
+            >
+              Seleccionar
+            </Button>
+          ) : (
+            // Si es un nodo padre (rama), mostramos un indicador en lugar del botón
+            <span className="badge bg-secondary bg-opacity-50 text-dark border small">
+              Contiene divisiones ↓
+            </span>
+          )}
+        </div>
+        
+        {/* Si este nodo tiene sub-subcategorías (hijos), las dibuja llamándose a sí mismo */}
+        {nodo.hijos && nodo.hijos.length > 0 && (
+          <div className="mt-2 border-start border-light-subtle ps-2">
+            {nodo.hijos.map((hijo: any) => (
+              <NodoArbolVisual key={hijo.clasificacion} nodo={hijo} nivel={nivel + 1} />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="container mt-2 mb-5">
@@ -144,9 +215,70 @@ export default function Presupuesto() {
           {mensaje.texto}
         </Alert>
       )}
+      {/* ================= FORMULARIO DE DATOS GENERALES ================= */}
+      <Row className="mb-4">
+        <Col md={12}>
+          <Card className="shadow-sm border-0 bg-white p-4">
+            <h4 className="text-primary mb-4 border-b pb-2">Encabezado y Balance del Presupuesto</h4>
+            
+            <Row className="align-items-center">
+              {/* --- Campo: Fecha Inicio --- */}
+              <Col md={3} sm={6} className="mb-3 mb-md-0">
+                <Form.Group>
+                  <Form.Label className="fw-bold small text-muted">Fecha Inicio <span className="text-danger">*</span></Form.Label>
+                  <Form.Control 
+                    type="date" 
+                    value={fechaIni} 
+                    onChange={(e) => setFechaIni(e.target.value)} 
+                    required
+                  />
+                </Form.Group>
+              </Col>
 
+              {/* --- Campo: Fecha Fin --- */}
+              <Col md={3} sm={6} className="mb-3 mb-md-0">
+                <Form.Group>
+                  <Form.Label className="fw-bold small text-muted">Fecha Fin <span className="text-danger">*</span></Form.Label>
+                  <Form.Control 
+                    type="date" 
+                    value={fechaFin} 
+                    onChange={(e) => setFechaFin(e.target.value)} 
+                    required
+                  />
+                </Form.Group>
+              </Col>
+
+              {/* --- Campo: Total de Ingresos --- */}
+              <Col md={2} xs={4} className="text-center border-start border-light">
+                <div className="small text-muted fw-bold text-uppercase" style={{ fontSize: '11px' }}>Total Ingresos</div>
+                <div className="fs-4 fw-bold text-success mt-1">
+                  Q {TotalIngresos.toFixed(2)}
+                </div>
+              </Col>
+
+              {/* --- Campo: Total de Egresos --- */}
+              <Col md={2} xs={4} className="text-center border-start border-light">
+                <div className="small text-muted fw-bold text-uppercase" style={{ fontSize: '11px' }}>Total Egresos</div>
+                <div className="fs-4 fw-bold text-danger mt-1">
+                  Q {TotalEgresos.toFixed(2)}
+                </div>
+              </Col>
+
+              {/* --- Campo: Total Neto (Balance) --- */}
+              <Col md={2} xs={4} className="text-center border-start border-light">
+                <div className="small text-muted fw-bold text-uppercase" style={{ fontSize: '11px' }}>Total Neto</div>
+                {/* 🎨 Condición de color: Si el total es negativo se pinta rojo, si es positivo azul */}
+                <div className={`fs-4 fw-bold mt-1 ${TotalNeto >= 0 ? 'text-primary' : 'text-danger'}`}>
+                  Q {TotalNeto.toFixed(2)}
+                </div>
+              </Col>
+            </Row>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* ================= FORMULARIO DE INGRESO ================= */}
       <Row>
-        {/* ================= FORMULARIO DE INGRESO ================= */}
         <Col md={5}>
           <Card className="shadow-sm border-0 bg-white p-4">
             <h4 className="text-primary mb-4">Ingreso de Presupuesto</h4>
@@ -155,7 +287,8 @@ export default function Presupuesto() {
               <Form.Group className="mb-3">
                 <Form.Label>Tipo Operación <span className="text-danger">*</span></Form.Label>
                 <Form.Select
-                  onChange={fnTipoOperacion} 
+                  value={tipoOperacion?.id ? tipoOperacion?.id : ""}
+                  onChange={handleTipoOperacion} 
                   disabled={cargandoCatalogos}
                   required>
                   <option value="">-- Selecciona --</option>
@@ -170,7 +303,7 @@ export default function Presupuesto() {
 
               <Form.Group className="mb-3">
                 <Form.Label>Frecuencia <span className="text-danger">*</span></Form.Label>
-                <Form.Select value={frecuencia?.id} onChange={(e) => setFrecuencia({id: e.target.value, descripcion: ""})} required>
+                <Form.Select value={frecuencia?.id ? frecuencia?.id:""} onChange={handleFrecuenciaChange} required>
                   <option value="">-- Selecciona --</option>
                   <option value="1">FIJO</option>
                   <option value="2">VARIABLE</option>
@@ -181,7 +314,8 @@ export default function Presupuesto() {
               <Form.Group className="mb-3">
                 <Form.Label>Clasificación <span className="text-danger">*</span></Form.Label>
                 <Form.Select 
-                  onChange={fnClasificacion}
+                  value={categoria?.id ? categoria?.id : ""}
+                  onChange={handleClasificacionOnChage}
                   disabled={cargandoCatalogos}
                   required 
                 >
@@ -195,16 +329,31 @@ export default function Presupuesto() {
                 </Form.Select>
               </Form.Group>
 
-              <Form.Group className="mb-3">
-                <Form.Label>Sub-Clasificación <span className="text-danger">*</span></Form.Label>
-                <Form.Select 
-                  onChange = {(e) => setSubCategoria({id: e.target.value, descripcion: ""})}
-                  disabled = {cargandoCatalogos}
-                  required 
-                >
-
-                </Form.Select>
-              </Form.Group>
+              <Form.Group className="mb-4">
+            <Form.Label className="fw-bold">Sub-Categoría / Detalles</Form.Label>
+            <div className="p-3 border rounded bg-light d-flex justify-content-between align-items-center">
+              <div>
+                {subCategoria ? (
+                  <span className="text-success fw-bold">✅{subCategoria.id} - {subCategoria.descripcion}</span>
+                ) : (
+                  <span className="text-muted small">Ninguna seleccionada</span>
+                )}
+              </div>
+              <Button 
+                variant="primary" 
+                size="sm"
+                onClick={() => setIsShowModalTree(true)}
+                disabled={!categoria} // Bloqueado hasta que elija la categoría principal
+              >
+              Explorar Árbol
+              </Button>
+            </div>
+            {!categoria && tipoOperacion && (
+              <Form.Text className="text-warning text-xs">
+                * Elige una Categoría Principal para activar el explorador.
+              </Form.Text>
+            )}
+          </Form.Group>
 
               <Form.Group className="mb-4">
                 <Form.Label>Monto <span className="text-danger">*</span></Form.Label>
@@ -282,14 +431,51 @@ export default function Presupuesto() {
                 <Button variant="primary" className="w-100 py-2 fw-bold fs-5 shadow-sm" onClick={handleTransmitir}>
                   💾 GUARDAR TODO EN BASE DE DATOS
                 </Button>
-                <p className="text-center text-muted small mt-2 mb-0">
-                  * Esto guardará los campos obligatorios junto con todas las subdivisiones extras de la matriz.
-                </p>
               </div>
             )}
           </Card>
         </Col>
       </Row>
+
+      <Modal 
+        show={isShowModalTree} 
+        onHide={() => setIsShowModalTree(false)} 
+        centered 
+        scrollable
+        size="lg"
+      >
+        <Modal.Header closeButton className="bg-dark text-white">
+          <Modal.Title>
+            🌿 Explorador de Subcategorías ({tipoOperacion?.descripcion} ➡️ {categoria?.descripcion})
+          </Modal.Title>
+        </Modal.Header>
+        
+        <Modal.Body className="bg-white py-4">
+          <Alert variant="info" className="py-2 small">
+            Navega en la estructura jerárquica y presiona <strong>Seleccionar</strong> en el nivel detallado que corresponda a tu registro.
+          </Alert>
+
+          <div className="pe-2" style={{ minHeight: '200px' }}>
+            {branchTree.length === 0 ? (
+              <div className="text-center text-muted my-5">
+                🚫 Esta categoría principal no cuenta con subcategorías registradas en la base de datos.
+              </div>
+            ) : (
+              // Iteramos las subcategorías del primer nivel, el componente se encargará de buscar el resto
+              branchTree.map((nodoHijo) => (
+                <NodoArbolVisual key={nodoHijo.clasificacion} nodo={nodoHijo} nivel={0} />
+              ))
+            )}
+          </div>
+        </Modal.Body>
+        
+        <Modal.Footer className="bg-light">
+          <Button variant="secondary" onClick={() => setIsShowModalTree(false)}>
+            Cerrar Explorador
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
     </div>
   );
 }
