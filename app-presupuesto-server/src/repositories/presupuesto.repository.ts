@@ -35,11 +35,10 @@ export const insert_presupuesto = async(datos: IPresupuestoEncabezado) =>{
 
 export const insert_presupuesto_detalle = async(idPresupuesto: number, datos: IPresupuestoDetalle) => {
     try {
-        console.log(datos.tipoOeracion)
         const pool = await getConnection();
         const result = await pool.request()
             .input('i_presupuesto', sql.Int, idPresupuesto)
-            .input('i_operacion', sql.VarChar, datos.tipoOeracion.id)
+            .input('i_operacion', sql.VarChar, datos.tipoOperacion.id)
             .input('i_frecuencia', sql.VarChar, datos.frecuencia.id)
             .input('i_categoria', sql.VarChar, datos.categoria.id)
             .input('i_subcategoria', sql.VarChar, datos.subCategoria.id)

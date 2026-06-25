@@ -3,7 +3,7 @@ import { insert_presupuesto, insert_presupuesto_detalle } from '../repositories/
 
 export const post_presupuesto = async (datos: IPresupuesto) =>{
     console.log(datos.detalle[0].categoria)
-    console.log(datos.detalle[0].tipoOeracion)
+    console.log(datos.detalle[0].tipoOperacion)
     console.log(datos.detalle[0].frecuencia)
     console.log(datos.detalle[0].subCategoria)
 

@@ -5,12 +5,15 @@ go
 if OBJECT_ID('core.presupuesto') is not null
 	drop table core.presupuesto
 go
-create table core.presupuesto (
-	presupuesto int			not null primary key,
-	fecha_ing	datetime	default getdate(),
-	fecha_upd	datetime	null,
-	fecha_ini	datetime	not null,
-	fecha_fin	datetime	not null
+create table core.presupuesto(
+	presupuesto		int			not null primary key,
+	fecha_ing		datetime	not null,
+	fecha_upd		datetime	null,
+	fecha_ini		datetime	not null,
+	fecha_fin		datetime	not null,
+	total_ingreso	money		not null,
+	total_egreso	money		not null,
+	usuario			varchar(15) not null
 )
 go
 if OBJECT_ID('core.matriz_presupuesto') is not null
@@ -20,9 +23,10 @@ create table core.matriz_presupuesto
 (
 	presupuesto		int				not null,
 	indice			int				not null,
-	operacion		int				not null,
-	frecuencia		int				not null,
-	transaccion		varchar(10)		not null,
+	operacion		varchar(10)		not null,
+	frecuencia		varchar(10)		not null,
+	categoria		varchar(10)		not null,
+	subcategoria	varchar(10) 	not null,
 	monto			money			not null,
 	descripcion		varchar(64)		null 
 )

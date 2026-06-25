@@ -5,7 +5,7 @@ export interface IItem{
 
 export interface IPresupuestoDetalle {
     idLocal: number;
-    tipoOeracion: IItem;
+    tipoOperacion: IItem;
     frecuencia: IItem;
     categoria: IItem;
     subCategoria: IItem;

@@ -90,7 +90,18 @@ export default function Presupuesto() {
     }
 
     try{
-      const respuesta = await api.post('/presupuesto/guardar-matriz', {registros: matrizPresupuesto})
+
+      const respuesta = await api.post('/presupuesto/ingresar_presupuesto', {
+        presupuesto: {
+          fechaInicio: fechaIni,
+          fechaFin: fechaFin,
+          totalIngreso: TotalEgresos,
+          totalEgreso: TotalIngresos,
+          total: TotalNeto
+        },
+        detalle: matrizPresupuesto
+      })
+      console.log(respuesta)
       setMensaje({ tipo: 'primary', texto: 'Datos se han guardado' })
       setMatrizPresupuesto([]);
     } catch(error){
