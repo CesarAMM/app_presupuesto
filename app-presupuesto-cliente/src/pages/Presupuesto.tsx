@@ -1,23 +1,19 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useMemo, act} from 'react';
 import { Card, Form, Button, Table, Row, Col, InputGroup, Alert, Modal} from 'react-bootstrap';
 import {api} from '../services/api';
-
-interface Item{
-  id: string;
-  descripcion: string;
-}
-
-interface ItemPresupuesto {
-  idLocal: number;
-  tipoOperacion: Item;
-  frecuencia: Item;
-  categoria: Item;
-  subCategoria: Item;
-  monto: number;
-}
+import type {Item, ItemPresupuesto, FormularioPresupuesto} from '../interface/presupuesto'
 
 
 export default function Presupuesto() {
+  const estadoInicialFormulario: FormularioPresupuesto = {
+      monto: '',
+      tipoOperacion: null,
+      frecuencia: null,
+      categoria: null,
+      subCategoria: null,
+    };
+  const [formulario, setFormulario] = useState(estadoInicialFormulario)
+
   //  --- CONSULTA GENERAL 
   const [lstDivisionOperaciones, setLstDivisionOperaciones] = useState<any[]>([]); 
   const [mensaje, setMensaje] = useState<{tipo: string; texto: string} | null>(null);
@@ -26,13 +22,7 @@ export default function Presupuesto() {
   
   // -- ESTADOS DE LOS ELEMENTOS INDIVIDUALES
   const [fechaIni, setFechaIni] = useState('');
-  const [fechaFin, setFechaFin] = useState('');
-  const [monto, setMonto] = useState(''); 
-  const [tipoOperacion, setTipoOperacion] = useState<Item | null >(null);
-  const [frecuencia, setFrecuencia] = useState<Item | null >(null);
-  const [categoria, setCategoria] = useState<Item | null >(null);
-  const [subCategoria, setSubCategoria] = useState<Item | null >(null);
-  
+  const [fechaFin, setFechaFin] = useState(''); 
   // -- ESTADOS DE LOS ARREGLOS
   const [matrizPresupuesto, setMatrizPresupuesto] = useState<ItemPresupuesto[]>([]);
   
@@ -40,44 +30,46 @@ export default function Presupuesto() {
   const [dbCategorias, setDBCategorias] = useState<any[]>([]);
   const [dbTipoOeracion, setDBTipoOperacion] = useState<any[]>([]);
   
-  const TotalIngresos = matrizPresupuesto
-    .filter(item => item.tipoOperacion.id === "1")
-    .reduce((acumulado, item) => acumulado + item.monto, 0)
+  const {TotalIngresos, TotalEgresos, TotalNeto } = useMemo(()=>{
+    const ingreso = matrizPresupuesto
+      .filter( item => item.tipoOperacion.id === '1')
+      .reduce((acc, item) => acc + item.monto, 0)
+    
+    const egreso = matrizPresupuesto
+      .filter( item => item.tipoOperacion.id === '2')
+      .reduce((acc, item) => acc + item.monto, 0)
+    
+    return {
+      TotalIngresos: ingreso,
+      TotalEgresos: egreso,
+      TotalNeto: ingreso- egreso
+    }
+  }, [matrizPresupuesto])
   
-  const TotalEgresos = matrizPresupuesto
-    .filter(item => item.tipoOperacion.id === "2")
-    .reduce((acumulado, item) => acumulado + item.monto, 0)
-
-  const TotalNeto = TotalIngresos - TotalEgresos;
   
   // --- BOTON 1: "GUARDAR" (Traslado de informacion a la matriz local) ---
   const handleAgregar = (e: React.FormEvent)=> {
     e.preventDefault();
 
-    if(!tipoOperacion || !frecuencia || !categoria || !subCategoria || !monto){
+    if(!formulario.tipoOperacion || !formulario.categoria || !formulario.frecuencia || !formulario.subCategoria || !formulario.monto){
       alert("Por fabor completa todos los campos obligatorios.")
       return;
     }
 
     const nuevoItem: ItemPresupuesto = {
       idLocal: Date.now(),
-      tipoOperacion,
-      frecuencia,
-      categoria,
-      subCategoria,
-      monto: parseFloat(monto)
+      tipoOperacion: formulario.tipoOperacion,
+      frecuencia: formulario.frecuencia,
+      categoria: formulario.categoria,
+      subCategoria: formulario.subCategoria,
+      monto: parseFloat(formulario.monto)
     }
 
     // Agregamos a la matriz global en memoria
     setMatrizPresupuesto([...matrizPresupuesto, nuevoItem]);
 
     // Limpiar el formulario
-    setTipoOperacion(null);
-    setFrecuencia(null);
-    setCategoria(null);
-    setSubCategoria(null);
-    setMonto('');
-
+    setFormulario(estadoInicialFormulario);
     setMensaje({ tipo: 'success', texto: 'Registro trasladado a la matriz.'})
     setTimeout(() => setMensaje(null), 3000)
   }
@@ -101,23 +93,24 @@ export default function Presupuesto() {
         },
         detalle: matrizPresupuesto
       })
-      console.log(respuesta)
+      if(!respuesta.data.ok){
+        setMensaje({ tipo: 'danger', texto: respuesta.data.mensaje })
+        return;
+      }
       setMensaje({ tipo: 'primary', texto: 'Datos se han guardado' })
       setMatrizPresupuesto([]);
+
     } catch(error){
       console.log(error);
       setMensaje({ tipo: 'danger', texto: 'Error al conectar a la api' })
     }
   }
-
-  const handleFrecuenciaChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const idSeleccionado = e.target.value;
-    const idxSelect = e.target.selectedIndex;
-    setFrecuencia({
-      id: idSeleccionado,
-      descripcion: e.target.options[idxSelect].text
-    })
+  
+  // Funcion para actualizar el formulario sin perder datos 
+  const actualizarCampo = (campo: string, valor: Item | number | null) =>{
+    setFormulario((estadoPrevio) => ({...estadoPrevio, [campo]: valor}))
   }
+
 
   const isNull = (valor: string | null | undefined): boolean =>{
     if (!valor) return true;
@@ -151,21 +144,6 @@ export default function Presupuesto() {
     obtenerCatalogo();
   }, []);
 
-  const handleTipoOperacion = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const idTipoOperacion = e.target.value;
-    const strTipoOperacion = lstDivisionOperaciones.find((dato:any) => dato.clasificacion === idTipoOperacion)
-    
-    const tmpCategoria = lstDivisionOperaciones.filter((dato: any) => dato.padre === idTipoOperacion)
-    setDBCategorias(tmpCategoria)
-    setTipoOperacion({id: strTipoOperacion.clasificacion, descripcion: strTipoOperacion.valor})
-  }
-
-  const handleClasificacionOnChage = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const idCategoria = e.target.value;
-    const strCategoria = lstDivisionOperaciones.find((dato: any) => dato.clasificacion === idCategoria);
-    setCategoria({id: strCategoria.clasificacion, descripcion: strCategoria.valor})
-  }
-
   const createTree = (nodoPadre: string): any[] =>{
     return lstDivisionOperaciones
       .filter(item => item.padre === nodoPadre)
@@ -175,7 +153,7 @@ export default function Presupuesto() {
       }));
   }
 
-  const branchTree = categoria ? createTree(categoria.id) : [];
+  const branchTree = formulario.categoria ? createTree(formulario.categoria.id) : [];
 
   const NodoArbolVisual = ({ nodo, nivel = 0 }: { nodo: any; nivel: number }) => {
     const esHoja = !nodo.hijos || nodo.hijos.length === 0;
@@ -193,7 +171,7 @@ export default function Presupuesto() {
               size="sm" 
               className="py-0 px-2 text-xs"
               onClick={() => {
-                setSubCategoria({id: nodo.clasificacion, descripcion: nodo.valor});
+                actualizarCampo("subCategoria", {id: nodo.clasificacion, descripcion: nodo.valor})
                 setIsShowModalTree(false);
               }}
             >
@@ -298,8 +276,18 @@ export default function Presupuesto() {
               <Form.Group className="mb-3">
                 <Form.Label>Tipo Operación <span className="text-danger">*</span></Form.Label>
                 <Form.Select
-                  value={tipoOperacion?.id ? tipoOperacion?.id : ""}
-                  onChange={handleTipoOperacion} 
+                  value={formulario.tipoOperacion?.id ? formulario.tipoOperacion?.id : ""}
+                  onChange={(e) => {
+                    const id = e.target.value;
+                    const texto = e.target.options[e.target.selectedIndex].text;
+                    
+                    const tmpCategoria = lstDivisionOperaciones.filter((dato: any) => dato.padre === id)
+                    setDBCategorias(tmpCategoria)
+    
+                    actualizarCampo('tipoOperacion', id ? {id, descripcion: texto} : null);
+                    actualizarCampo('categoria', null);
+                    actualizarCampo('subCategoria', null);
+                  }} 
                   disabled={cargandoCatalogos}
                   required>
                   <option value="">-- Selecciona --</option>
@@ -314,19 +302,32 @@ export default function Presupuesto() {
 
               <Form.Group className="mb-3">
                 <Form.Label>Frecuencia <span className="text-danger">*</span></Form.Label>
-                <Form.Select value={frecuencia?.id ? frecuencia?.id:""} onChange={handleFrecuenciaChange} required>
+                <Form.Select 
+                  value={formulario.frecuencia?.id  || ""} 
+                  onChange={(e) =>{
+                    const id = e.target.value;
+                    const descripcion = e.target.options[e.target.selectedIndex].text;
+
+                    actualizarCampo('frecuencia', id ? { id, descripcion } : null);
+                  }} 
+                  required>
                   <option value="">-- Selecciona --</option>
                   <option value="1">FIJO</option>
                   <option value="2">VARIABLE</option>
                   <option value="3">OCACIONAL</option>
                 </Form.Select>
               </Form.Group>
-
               <Form.Group className="mb-3">
-                <Form.Label>Clasificación <span className="text-danger">*</span></Form.Label>
+                <Form.Label>Categoria <span className="text-danger">*</span></Form.Label>
                 <Form.Select 
-                  value={categoria?.id ? categoria?.id : ""}
-                  onChange={handleClasificacionOnChage}
+                  value={formulario.categoria?.id || ''}
+                  onChange={(e) => {
+                    const id = e.target.value;
+                    const descripcion = e.target.options[e.target.selectedIndex].text;
+
+                    actualizarCampo('categoria', id ? { id, descripcion } : null);
+                    actualizarCampo('subCategoria', null);
+                  }}
                   disabled={cargandoCatalogos}
                   required 
                 >
@@ -344,8 +345,8 @@ export default function Presupuesto() {
             <Form.Label className="fw-bold">Sub-Categoría / Detalles</Form.Label>
             <div className="p-3 border rounded bg-light d-flex justify-content-between align-items-center">
               <div>
-                {subCategoria ? (
-                  <span className="text-success fw-bold">✅{subCategoria.id} - {subCategoria.descripcion}</span>
+                {formulario.subCategoria ? (
+                  <span className="text-success fw-bold">✅{formulario.subCategoria.id} - {formulario.subCategoria.descripcion}</span>
                 ) : (
                   <span className="text-muted small">Ninguna seleccionada</span>
                 )}
@@ -354,12 +355,12 @@ export default function Presupuesto() {
                 variant="primary" 
                 size="sm"
                 onClick={() => setIsShowModalTree(true)}
-                disabled={!categoria} // Bloqueado hasta que elija la categoría principal
+                disabled={!formulario.categoria} // Bloqueado hasta que elija la categoría principal
               >
               Explorar Árbol
               </Button>
             </div>
-            {!categoria && tipoOperacion && (
+            {!formulario.categoria && formulario.tipoOperacion && (
               <Form.Text className="text-warning text-xs">
                 * Elige una Categoría Principal para activar el explorador.
               </Form.Text>
@@ -374,8 +375,8 @@ export default function Presupuesto() {
                     type="number" 
                     step="0.01" 
                     placeholder="0.00" 
-                    value={monto} 
-                    onChange={(e) => setMonto(e.target.value)}
+                    value={formulario.monto} 
+                    onChange={(e) => actualizarCampo("monto", Number(e.target.value))}
                     required 
                   />
                 </InputGroup>
@@ -457,7 +458,7 @@ export default function Presupuesto() {
       >
         <Modal.Header closeButton className="bg-dark text-white">
           <Modal.Title>
-            🌿 Explorador de Subcategorías ({tipoOperacion?.descripcion} ➡️ {categoria?.descripcion})
+            🌿 Explorador de Subcategorías ({formulario.tipoOperacion?.descripcion} ➡️ {formulario.categoria?.descripcion})
           </Modal.Title>
         </Modal.Header>
         
