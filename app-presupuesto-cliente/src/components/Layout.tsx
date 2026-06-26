@@ -33,9 +33,7 @@ export default function Layout() {
       </Navbar>
 
       {/* Aquí es donde "aterrizan" las diferentes páginas */}
-      <Container>
-        <Outlet /> 
-      </Container>
+      <Outlet />
     </>
   );
 }

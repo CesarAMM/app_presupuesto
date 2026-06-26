@@ -13,6 +13,7 @@ export default function Presupuesto() {
       subCategoria: null,
     };
   const [formulario, setFormulario] = useState(estadoInicialFormulario)
+  const [editItem, setEditItem] = useState<number | null>(null)
 
   //  --- CONSULTA GENERAL 
   const [lstDivisionOperaciones, setLstDivisionOperaciones] = useState<any[]>([]); 
@@ -46,7 +47,28 @@ export default function Presupuesto() {
     }
   }, [matrizPresupuesto])
   
-  
+  //  --- BOTON: ELMININAR ITEM
+  const handleEliminarItem = (idLocal: number) => {
+    const tmpMatriz = matrizPresupuesto.filter(item => item.idLocal !== idLocal);
+    setMatrizPresupuesto(tmpMatriz)
+
+    if(editItem === idLocal){
+      setFormulario(estadoInicialFormulario);
+      setEditItem(null)
+    }
+  }
+
+  const handleEditarItem = (Item: ItemPresupuesto)=>{
+    setFormulario({
+      monto: Item.monto.toString(),
+      tipoOperacion: Item.tipoOperacion,
+      frecuencia: Item.frecuencia,
+      categoria: Item.categoria,
+      subCategoria: Item.subCategoria
+    })
+
+    setEditItem(Item.idLocal)
+  }
   // --- BOTON 1: "GUARDAR" (Traslado de informacion a la matriz local) ---
   const handleAgregar = (e: React.FormEvent)=> {
     e.preventDefault();
@@ -57,7 +79,7 @@ export default function Presupuesto() {
     }
 
     const nuevoItem: ItemPresupuesto = {
-      idLocal: Date.now(),
+      idLocal: editItem ? editItem : Date.now(),
       tipoOperacion: formulario.tipoOperacion,
       frecuencia: formulario.frecuencia,
       categoria: formulario.categoria,
@@ -65,8 +87,16 @@ export default function Presupuesto() {
       monto: parseFloat(formulario.monto)
     }
 
-    // Agregamos a la matriz global en memoria
-    setMatrizPresupuesto([...matrizPresupuesto, nuevoItem]);
+    if(editItem){ // EIDITANDO MATRIZ
+      const tmpMatriz = matrizPresupuesto.map(item => 
+        item.idLocal === editItem ? nuevoItem : item
+      );
+      setMatrizPresupuesto(tmpMatriz);
+      setEditItem(null);
+    }else {
+      // Agregamos a la matriz global en memoria
+      setMatrizPresupuesto([...matrizPresupuesto, nuevoItem]);
+    }
 
     // Limpiar el formulario
     setFormulario(estadoInicialFormulario);
@@ -198,7 +228,7 @@ export default function Presupuesto() {
   };
 
   return (
-    <div className="container mt-2 mb-5">
+    <div className="container-fluid mt-2 mb-5">
       {mensaje && (
         <Alert variant={mensaje.tipo} onClose={() => setMensaje(null)} dismissible>
           {mensaje.texto}
@@ -383,9 +413,28 @@ export default function Presupuesto() {
               </Form.Group>
 
               {/* BOTÓN 1 */}
-              <Button variant="success" type="submit" className="w-100 fw-bold">
-                Guardar
-              </Button>
+              <div className="d-flex gap-2">
+                <Button 
+                  variant={editItem ? "warning" : "success"} 
+                  type="submit" 
+                  className="w-100 fw-bold"
+                >
+                  {editItem ? "📝 Actualizar Registro" : "📥 Agregar a Matriz"}
+                </Button>
+                
+                {/* Botón para cancelar la edición si el usuario se arrepiente */}
+                {editItem && (
+                  <Button 
+                    variant="secondary" 
+                    onClick={() => {
+                      setFormulario(estadoInicialFormulario);
+                      setEditItem(null);
+                    }}
+                  >
+                    Cancelar
+                  </Button>
+                )}
+              </div>
             </Form>
           </Card>
         </Col>
@@ -405,15 +454,16 @@ export default function Presupuesto() {
                     <tr>
                       <th>Tipo</th>
                       <th>Frecuencia</th>
-                      <th>Clasificación</th>
-                      <th>SubClasificación</th>
+                      <th>Categoría</th>
+                      <th>SubCategoría</th>
                       <th>Monto</th>
+                      <th className="text-center">Acciones</th> {/* <-- NUEVA COLUMNA */}
                     </tr>
                   </thead>
                   <tbody>
                     {matrizPresupuesto.length === 0 ? (
                       <tr>
-                        <td colSpan={5} className="text-muted py-4">
+                        <td colSpan={6} className="text-muted py-4">
                           No hay registros en la matriz. Llena el formulario de la izquierda y haz clic en Guardar.
                         </td>
                       </tr>
@@ -429,6 +479,25 @@ export default function Presupuesto() {
                             {item.subCategoria.descripcion}
                           </td>
                           <td className="fw-bold">Q {item.monto.toFixed(2)}</td>
+                          <td className="text-center">
+                            <Button 
+                              variant="outline-primary" 
+                              size="sm" 
+                              className="me-2"
+                              onClick={() => handleEditarItem(item)}
+                              title="Editar"
+                            >
+                              ✏️
+                            </Button>
+                            <Button 
+                              variant="outline-danger" 
+                              size="sm"
+                              onClick={() => handleEliminarItem(item.idLocal)}
+                              title="Eliminar"
+                            >
+                              🗑️
+                            </Button>
+                          </td>
                         </tr>
                       ))
                     )}
