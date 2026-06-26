@@ -6,8 +6,8 @@ export const postPresupuesto = async (req: Request, res: Response) => {
         const data = req.body;
         const respuesta = await post_presupuesto(data);
         res.status(200).json({
-            ok: true,
-            mensaje: 'Exito'
+            ok: respuesta?.ok,
+            mensaje: respuesta?.mensaje
         })
     } catch (error) {
         res.status(500).json({

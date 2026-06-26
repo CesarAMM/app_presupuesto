@@ -2,12 +2,6 @@ import { IPresupuesto } from '../interfaces/Presupuesto'
 import { insert_presupuesto, insert_presupuesto_detalle } from '../repositories/presupuesto.repository'
 
 export const post_presupuesto = async (datos: IPresupuesto) =>{
-    console.log(datos.detalle[0].categoria)
-    console.log(datos.detalle[0].tipoOperacion)
-    console.log(datos.detalle[0].frecuencia)
-    console.log(datos.detalle[0].subCategoria)
-
-
     try {
         const respuestaEncabezado = await insert_presupuesto(datos.presupuesto);
         if(!respuestaEncabezado){
@@ -19,7 +13,6 @@ export const post_presupuesto = async (datos: IPresupuesto) =>{
         })
 
     } catch (error) {
-        console.log(error)
-        throw new Error('ERROR EN INSERAR INFORMACION DE PRESUPUESTO');
+        return {ok: false, mensaje: 'ERROR EN INSERAR INFORMACION DE PRESUPUESTO'}
     }
 }
