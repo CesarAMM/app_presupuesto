@@ -1,6 +1,6 @@
 import sql from 'mssql'
 import { getConnection } from '../config/database'
-import { IItem, IPresupuesto, IPresupuestoDetalle, IPresupuestoEncabezado } from '../interfaces/Presupuesto'
+import { IPresupuestoDetalle, IPresupuestoEncabezado } from '../interfaces/Presupuesto'
 
 export const insert_presupuesto = async(datos: IPresupuestoEncabezado) =>{
     try {

@@ -7,10 +7,13 @@ export const post_presupuesto = async (datos: IPresupuesto) =>{
         if(!respuestaEncabezado){
             return { ok: false, mensaje: 'Error en crear el encabezado.'}
         }
-        
-        datos.detalle.forEach( async dato =>{
+        let contador = 0;
+        datos.detalle.forEach( async dato => {
             const respuestaDetalle = await insert_presupuesto_detalle(respuestaEncabezado.id, dato);
+            contador ++;
         })
+
+        return {ok: true, mensaje: 'Datos Guardatos', datos: {respuestaEncabezado, contador}}
 
     } catch (error) {
         return {ok: false, mensaje: 'ERROR EN INSERAR INFORMACION DE PRESUPUESTO'}
