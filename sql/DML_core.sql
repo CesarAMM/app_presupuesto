@@ -44,6 +44,7 @@ create table core.operacion (
 	frecuencia			varchar(10) not null,
 	categoria			varchar(10) not null,
 	subcategoria		varchar(10) not null,
+	cuenta				int 		not null,
 	descripcion			varchar(10) null,
 	monto				money		not null,
 	fecha_ope			datetime	not null,
