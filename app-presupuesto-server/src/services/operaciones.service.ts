@@ -1,5 +1,6 @@
 import {insert_operacion} from '../repositories/operaciones.repository'
 import { IResponseServicio } from '../interfaces/IRespuestaService';
+import { sel_metadata_operaciones } from '../repositories/metadata.repository';
 
 export const post_insert_operacion = async (datos: any): Promise<IResponseServicio> => {
     try {
@@ -21,6 +22,19 @@ export const post_insert_operacion = async (datos: any): Promise<IResponseServic
         return {
             ok: false,
             mensaje: 'Error en el operaciones.servicio'
+        }
+    }
+}
+
+export const get_sel_metada_operaciones = async (): Promise<IResponseServicio> => {
+    try {
+        const respuesta = await sel_metadata_operaciones();
+        console.log(respuesta)
+        return respuesta;
+    } catch (error) {
+        return {
+            ok: false,
+            mensaje: 'ERROR EN operacion.servicio.post_sel_metada_operaciones'
         }
     }
 }

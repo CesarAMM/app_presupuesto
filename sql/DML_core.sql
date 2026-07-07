@@ -83,6 +83,23 @@ create table core.usuario (
 )
 go
 
-
 insert into core.usuario (usuario, user_login, rol, password_has)
 values (1, 'cmazariegos', 1, '123456')
+go
+
+if OBJECT_ID('core.cuenta') is not null drop table core.cuenta
+go
+create table core.cuenta(
+	codigo	int primary key,
+	cuenta	varchar(20)		not null,
+	tipo	varchar(30)		not null,
+	estado	smallint		not null default 1
+)
+go
+insert into core.cuenta (codigo, cuenta, tipo, estado)
+values	(1, 'BANRURAL',		'MONETARIA',		1),
+		(2, 'BANRURAL',		'AHORRO',			1),
+		(3, 'BANRURAL',		'FONDO RETIRO',		1),
+		(4, 'BANRURAL',		'TARJETA CREDITO',	1),
+		(5, 'INDUSTRIAL',	'MONETARIA',		1),
+		(6, 'INDUSTRIAL',	'TARJETA CREDITO',	1)

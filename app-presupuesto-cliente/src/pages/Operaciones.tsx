@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect} from 'react';
 import { Card, Form, Button, Table, Row, Col, InputGroup, Alert } from 'react-bootstrap';
 import type { Operacion, DetalleCompra } from '../interface/operacion';
+import { api } from '../services/api';
 
 export default function Operaciones() {
 
@@ -29,6 +30,7 @@ export default function Operaciones() {
   const [itemCosto, setItemCosto] = useState('');
   const [itemUnidad, setItemUnidad] = useState('');
   const [itemCantidad, setItemCantidad] = useState('');
+  const [stateCatalogo, setStateCatalogo] = useState(true);
 
   // --- EVALUACIÓN DE REGLA DE NEGOCIO ---
   // Detecta si la subcategoría requiere desglose de factura (Ej: 'SUPER' o código '26001')
@@ -41,6 +43,29 @@ export default function Operaciones() {
     return matrizDetalleCompra.reduce((acc, row) => acc + row.totalRow, 0);
   }, [matrizDetalleCompra]);
 
+  // Traer datos a la base de datos
+  useEffect(()=> {
+    const obtenerCatalogo = async () =>{
+      setStateCatalogo(true);
+      try {
+        const respuesta = await api.get('/metadata/metadatos_operaciones');
+        const datos = respuesta.data;
+        if(!datos.ok){
+          alert('No hay Datos')
+          return;
+        }
+        const metadatoClasificacion = datos.data[0];
+        const metadatoCuentas = datos.data[1];
+        const metadatoFrecuencia = datos.data[2];
+        
+      } catch (error) {
+        console.log(error)
+      } finally {
+        setStateCatalogo(false)
+      }
+    }
+    obtenerCatalogo();
+  },[])
   // El monto definitivo que se va a guardar
   const montoDefinitivo = requiereDetalleCompra ? totalFacturaCalculado : parseFloat(formulario.monto) || 0;
 
