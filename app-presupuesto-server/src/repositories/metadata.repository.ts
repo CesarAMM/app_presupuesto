@@ -36,6 +36,18 @@ export const sel_metadata_operaciones = async (): Promise<IResponseServicio> => 
                 from	metadata.tabla t
                 inner join metadata.catalogo c on t.codigo = c.tabla
                 where t.tabla = 'tbl_tipo_transaccion'
+
+                select 	*
+		        from metadata.producto
+                where estado = 1
+
+                select 	*
+		        from metadata.dimension
+                where estado = 1
+
+                select 	*
+		        from metadata.detalle_gasto
+                where estado = 1
             `);
         pool.close();
         return {
