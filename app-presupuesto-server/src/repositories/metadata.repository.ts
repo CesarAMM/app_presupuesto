@@ -27,7 +27,8 @@ export const sel_metadata_operaciones = async (): Promise<IResponseServicio> => 
                 where   estado = 1
                 order   by clasificacion asc
 
-                select	codigo, cuenta + ' - ' + tipo 
+                select	codigo, 
+                        cuenta + ' - ' + tipo "dedscripcion" 
                 from	core.cuenta
                 where	estado = 1
 

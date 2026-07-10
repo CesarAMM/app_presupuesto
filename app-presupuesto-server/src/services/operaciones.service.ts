@@ -29,7 +29,6 @@ export const post_insert_operacion = async (datos: any): Promise<IResponseServic
 export const get_sel_metada_operaciones = async (): Promise<IResponseServicio> => {
     try {
         const respuesta = await sel_metadata_operaciones();
-        console.log(respuesta)
         return respuesta;
     } catch (error) {
         return {

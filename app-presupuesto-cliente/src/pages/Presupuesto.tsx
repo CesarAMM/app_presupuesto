@@ -372,30 +372,30 @@ export default function Presupuesto() {
               </Form.Group>
 
               <Form.Group className="mb-4">
-            <Form.Label className="fw-bold">Sub-Categoría / Detalles</Form.Label>
-            <div className="p-3 border rounded bg-light d-flex justify-content-between align-items-center">
-              <div>
-                {formulario.subCategoria ? (
-                  <span className="text-success fw-bold">✅{formulario.subCategoria.id} - {formulario.subCategoria.descripcion}</span>
-                ) : (
-                  <span className="text-muted small">Ninguna seleccionada</span>
-                )}
-              </div>
-              <Button 
-                variant="primary" 
-                size="sm"
-                onClick={() => setIsShowModalTree(true)}
-                disabled={!formulario.categoria} // Bloqueado hasta que elija la categoría principal
-              >
-              Explorar Árbol
-              </Button>
-            </div>
-            {!formulario.categoria && formulario.tipoOperacion && (
-              <Form.Text className="text-warning text-xs">
-                * Elige una Categoría Principal para activar el explorador.
-              </Form.Text>
-            )}
-          </Form.Group>
+                <Form.Label className="fw-bold">Sub-Categoría / Detalles</Form.Label>
+                  <div className="p-3 border rounded bg-light d-flex justify-content-between align-items-center">
+                    <div>
+                      {formulario.subCategoria ? (
+                        <span className="text-success fw-bold">✅{formulario.subCategoria.id} - {formulario.subCategoria.descripcion}</span>
+                      ) : (
+                        <span className="text-muted small">Ninguna seleccionada</span>
+                      )}
+                    </div>
+                    <Button 
+                      variant="primary" 
+                      size="sm"
+                      onClick={() => setIsShowModalTree(true)}
+                      disabled={!formulario.categoria} // Bloqueado hasta que elija la categoría principal
+                    >
+                      Explorar Árbol
+                    </Button>
+                  </div>
+                  {!formulario.categoria && formulario.tipoOperacion && (
+                    <Form.Text className="text-warning text-xs">
+                      * Elige una Categoría Principal para activar el explorador.
+                    </Form.Text>
+                  )}
+              </Form.Group>
 
               <Form.Group className="mb-4">
                 <Form.Label>Monto <span className="text-danger">*</span></Form.Label>

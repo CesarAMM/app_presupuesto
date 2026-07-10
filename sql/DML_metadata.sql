@@ -65,6 +65,8 @@ inner join metadata.catalogo c on t.codigo = c.tabla
 
 GO
 
+use dp_presupuesto
+go
 if OBJECT_ID('metadata.clasificacion_gasto') is not null
 	drop table metadata.clasificacion_gasto
 
@@ -73,10 +75,13 @@ create table metadata.clasificacion_gasto(
 	valor			varchar(32)		not null,
 	padre			varchar(10)		null,
 	estado			smallint		not null default 1,
+	detalle_gasto	char(1)			not null default 'N',
+	ahorro			char(1)			not null default 'N'
 
 	constraint FK_clasificacion_padre FOREIGN KEY (padre)
 		references metadata.clasificacion_gasto(clasificacion)
 )
+go
 
 insert into metadata.clasificacion_gasto (clasificacion, valor, padre) values 
 (1, 'INGRESO', null),
@@ -109,26 +114,39 @@ insert into metadata.clasificacion_gasto (clasificacion, valor, padre) values
 (270, 'MESADA', 2)
 
 insert into metadata.clasificacion_gasto (clasificacion, valor, padre) values 
-(21001, 'MANTENIMIENTO', 210), (21002, 'CLARO CELULAR', 210), (21003, 'CLARO HOGAR', 210), (21004, 'LUZ', 210), (21005, 'STREAMING', 210)
+(21001, 'MANTENIMIENTO', 210), 
+(21002, 'CLARO CELULAR', 210), 
+(21003, 'CLARO HOGAR', 210),
+(21004, 'LUZ', 210), 
+(21005, 'STREAMING', 210)
 
 insert into metadata.clasificacion_gasto (clasificacion, valor, padre) values 
-(22001, 'HIPOTECA', 220), (22002, 'VISACUOTAS', 220), (22003, 'EXTRAFINANCIAMIENTO', 220), (22004, 'CREDITO', 220)
+(22001, 'HIPOTECA', 220), 
+(22002, 'VISACUOTAS', 220),
+(22003, 'EXTRAFINANCIAMIENTO', 220),
+(22004, 'CREDITO', 220)
+
+insert into metadata.clasificacion_gasto (clasificacion, valor, padre, ahorro) values
+(23001, 'COPE BANRURAL', 230, 'S'),
+(23002, 'FONDO RETIRO', 230, 'S')
 
 insert into metadata.clasificacion_gasto (clasificacion, valor, padre) values
-(23001, 'COPE BANRURAL', 230), (23002, 'FONDO RETIRO', 230)
+(24001, 'MOTO', 240),
+(24002, 'CARRO', 240)
 
 insert into metadata.clasificacion_gasto (clasificacion, valor, padre) values
-(24001, 'MOTO', 240), (24002, 'CARRO', 240)
+(240011, 'GASOLINA', 24001),
+(240012, 'SERVICIO', 24001),
+(240022, 'GASOLINA', 24002),
+(240023, 'SERVICIO', 24002)
 
-insert into metadata.clasificacion_gasto (clasificacion, valor, padre) values
-(240011, 'GASOLINA', 24001), (240012, 'SERVICIO', 24001), (240022, 'GASOLINA', 24002), (240023, 'SERVICIO', 24002)
-
-insert into metadata.clasificacion_gasto (clasificacion, valor, padre) values
-(26001, 'SUPER', 260),
-(26002, 'COMIDA AFUERA', 260)
+insert into metadata.clasificacion_gasto (clasificacion, valor, padre, detalle_gasto) values
+(26001, 'SUPER', 260, 'S'),
+(26002, 'COMIDA AFUERA', 260, 'N')
 
 insert into metadata.clasificacion_gasto (clasificacion, valor, padre) values
 (27001, 'DANIELA', 270), (27002, 'CESAR', 270), (27003, 'DOÑA TONY', 270), (27004, 'NEGRA', 270)
+
 GO
 	select	* 
 	from	metadata.clasificacion_gasto

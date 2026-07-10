@@ -1,14 +1,9 @@
 import React, { useState, useMemo, useEffect} from 'react';
-import { Card, Form, Button, Table, Row, Col, InputGroup, Alert } from 'react-bootstrap';
+import { Card, Form, Button, Table, Row, Col, InputGroup, Alert, Modal } from 'react-bootstrap';
 import type { Operacion, DetalleCompra } from '../interface/operacion';
 import { api } from '../services/api';
 
 export default function Operaciones() {
-
-  // --- Catálogos Locales de Simulación (Vendrán de la Base de Datos) ---
-  const [catalogoProductos] = useState<string[]>(['Arroz', 'Frijol', 'Leche', 'Aceite']);
-  const [catalogoUnidades] = useState<string[]>(['Unidad', 'Libra', 'Onza', 'Caja', 'Paquete']);
-
   // --- Estados Principales ---
   const estadoInicialForm = {
     fechaOperacion: new Date().toISOString().split('T')[0], // Fecha de hoy por defecto
@@ -31,17 +26,38 @@ export default function Operaciones() {
   const [itemUnidad, setItemUnidad] = useState('');
   const [itemCantidad, setItemCantidad] = useState('');
   const [stateCatalogo, setStateCatalogo] = useState(true);
+  const [isShowModalTree, setIsShowModalTree] = useState(false);
+
+  const [mtrClasificacion, setMtrClasificacion] = useState<any[]>([])
+  
+  const [dbCuentas, setDbCuentas] = useState<any[]>([])
+  const [dbFrecuencia, setDbFrecuencia] = useState<any[]>([])
+  const [dbCategoria, setDbCategoria] = useState<any[]>([])
+  const [dbTipoOperacion, setDbTipoOperacion] = useState<any[]>([])
 
   // --- EVALUACIÓN DE REGLA DE NEGOCIO ---
   // Detecta si la subcategoría requiere desglose de factura (Ej: 'SUPER' o código '26001')
   const requiereDetalleCompra = useMemo(() => {
-    return formulario.subCategoria?.id === '26001' || formulario.subCategoria?.descripcion.toLowerCase() === 'super';
+    const idSubCategoriaSel = formulario.subCategoria?.id
+    const detalle_gasto = mtrClasificacion.find(p => p.clasificacion === idSubCategoriaSel)
+    if (!detalle_gasto){
+      return false
+    }
+    return  detalle_gasto.detalle_gasto === 'S';
   }, [formulario.subCategoria]);
 
   // --- CÁLCULO AUTOMÁTICO DE TOTAL FACTURA (`useMemo`) ---
   const totalFacturaCalculado = useMemo(() => {
     return matrizDetalleCompra.reduce((acc, row) => acc + row.totalRow, 0);
   }, [matrizDetalleCompra]);
+
+  
+  const isNull = (valor: string | null | undefined): boolean =>{
+    if (!valor) return true;
+    if (valor === "null" || valor === "undefined") return true;
+    if (valor.trim() === "") return true;
+    return false
+  }
 
   // Traer datos a la base de datos
   useEffect(()=> {
@@ -57,7 +73,16 @@ export default function Operaciones() {
         const metadatoClasificacion = datos.data[0];
         const metadatoCuentas = datos.data[1];
         const metadatoFrecuencia = datos.data[2];
+
+        const lstTipoOperacion = metadatoClasificacion.filter( (p: any) => isNull(p.padre))
+        const lstCatetgoria = metadatoClasificacion.filter((p: any) => p.clasificacion.length === 3)
         
+        setDbTipoOperacion(lstTipoOperacion)
+        setDbCategoria(lstCatetgoria)
+        setMtrClasificacion(metadatoClasificacion)
+        setDbCuentas(metadatoCuentas)
+        setDbFrecuencia(metadatoFrecuencia)
+
       } catch (error) {
         console.log(error)
       } finally {
@@ -128,6 +153,8 @@ export default function Operaciones() {
       detalleFactura: requiereDetalleCompra ? matrizDetalleCompra : []
     };
 
+    console.log(payloadTransaccion)
+
     try {
       console.log('🚀 Payload masivo listo para SQL Server:', payloadTransaccion);
       
@@ -146,8 +173,62 @@ export default function Operaciones() {
     }
   };
 
+  const createTree = (nodoPadre: string): any[] =>{
+    return mtrClasificacion
+      .filter(item => item.padre === nodoPadre)
+      .map(item => ({
+        ...item,
+        hijos: createTree(item.clasificacion)
+      }));
+  }
+
+  const branchTree = formulario.categoria ? createTree(formulario.categoria.id) : [];
+
+  const NodoArbolVisual = ({ nodo, nivel = 0 }: { nodo: any; nivel: number }) => {
+      const esHoja = !nodo.hijos || nodo.hijos.length === 0;
+      return (
+        <div style={{ marginLeft: `${nivel * 25}px` }} className="mb-2">
+          <div className="d-flex align-items-center justify-content-between p-2 rounded bg-light hover-shadow-sm border-start border-primary border-3">
+            <div>
+              <span className="me-2">{nivel === 0 ? '📁' : '📄'}</span>
+              <strong>{nodo.valor}</strong> 
+              <span className="text-muted small ms-2">({nodo.clasificacion})</span>
+            </div>
+            {esHoja ? (
+              <Button 
+                variant="outline-success" 
+                size="sm" 
+                className="py-0 px-2 text-xs"
+                onClick={() => {
+                  setMatrizDetalleCompra([]); // Reseteamos desglose si cambia de subcategoría
+                  actualizarCampo("subCategoria", {id: nodo.clasificacion, descripcion: nodo.valor})
+                  setIsShowModalTree(false);
+                }}
+              >
+                Seleccionar
+              </Button>
+            ) : (
+              // Si es un nodo padre (rama), mostramos un indicador en lugar del botón
+              <span className="badge bg-secondary bg-opacity-50 text-dark border small">
+                Contiene divisiones ↓
+              </span>
+            )}
+          </div>
+          
+          {/* Si este nodo tiene sub-subcategorías (hijos), las dibuja llamándose a sí mismo */}
+          {nodo.hijos && nodo.hijos.length > 0 && (
+            <div className="mt-2 border-start border-light-subtle ps-2">
+              {nodo.hijos.map((hijo: any) => (
+                <NodoArbolVisual key={hijo.clasificacion} nodo={hijo} nivel={nivel + 1} />
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    };
+
   return (
-    <div className="container mt-2 mb-5">
+    <div className={`mt-2 mb-5 ${requiereDetalleCompra ? '': 'container mt-2 mb-5'}`}>
       {status && (
         <Alert variant={status.tipo} onClose={() => setStatus(null)} dismissible>
           {status.texto}
@@ -170,6 +251,7 @@ export default function Operaciones() {
                       value={formulario.fechaOperacion}
                       onChange={(e) => actualizarCampo('fechaOperacion', e.target.value)}
                       required
+                      disabled={stateCatalogo}
                     />
                   </Form.Group>
                 </Col>
@@ -178,10 +260,14 @@ export default function Operaciones() {
                   <Form.Group>
                     <Form.Label className="fw-bold small">Tipo Operación *</Form.Label>
                     <Form.Select 
+                      disabled={stateCatalogo}
                       value={formulario.tipoOperacion?.id || ''}
                       onChange={(e) => {
                         const id = e.target.value;
                         const txt = e.target.options[e.target.selectedIndex].text;
+
+                        const tmpCategoria = mtrClasificacion.filter((dato: any) => dato.padre === id)
+                        setDbCategoria(tmpCategoria)
                         actualizarCampo('tipoOperacion', id ? { id, descripcion: txt } : null);
                         actualizarCampo('categoria', null);
                         actualizarCampo('subCategoria', null);
@@ -189,33 +275,38 @@ export default function Operaciones() {
                       required
                     >
                       <option value="">-- Selecciona --</option>
-                      <option value="1">Ingreso</option>
-                      <option value="2">Egreso</option>
+                      {dbTipoOperacion.map((item) => (
+                        <option key={item.clasificacion} value={item.clasificacion}>
+                          {item.valor}
+                        </option>
+                      ))}
                     </Form.Select>
                   </Form.Group>
                 </Col>
               </Row>
 
-              {/* Frecuencia */}
-              <Form.Group className="mb-3">
-                <Form.Label className="fw-bold small">Frecuencia</Form.Label>
-                <Form.Select
-                  value={formulario.frecuencia?.id || ''}
-                  onChange={(e) => {
-                    const id = e.target.value;
-                    const txt = e.target.options[e.target.selectedIndex].text;
-                    actualizarCampo('frecuencia', id ? { id, descripcion: txt } : null);
-                  }}
-                >
-                  <option value="">-- Selecciona --</option>
-                  <option value="1">FIJO</option>
-                  <option value="2">VARIABLE</option>
-                  <option value="3">OCASIONAL</option>
-                </Form.Select>
-              </Form.Group>
-
-              {/* Categorías de Simulación (Aquí usarás tu lógica de Árbol/Modal que ya perfeccionamos) */}
               <Row>
+                <Col md={6} className="mb-3">
+                  {/* Frecuencia */}
+                  <Form.Group className="mb-3">
+                    <Form.Label className="fw-bold small">Frecuencia</Form.Label>
+                    <Form.Select
+                      value={formulario.frecuencia?.id || ''}
+                      onChange={(e) => {
+                        const id = e.target.value;
+                        const txt = e.target.options[e.target.selectedIndex].text;
+                        actualizarCampo('frecuencia', id ? { id, descripcion: txt } : null);
+                      }}
+                    >
+                      <option value="">-- Selecciona --</option>
+                      {dbFrecuencia.map((item) => (
+                            <option key={item.codigo} value={item.valor}>
+                              {item.valor}
+                            </option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
                 <Col md={6} className="mb-3">
                   <Form.Group>
                     <Form.Label className="fw-bold small">Categoría Principal *</Form.Label>
@@ -228,27 +319,62 @@ export default function Operaciones() {
                       required
                     >
                       <option value="">-- Selecciona --</option>
-                      <option value="240">Carro</option>
-                      <option value="260">Compra</option>
+                      {dbCategoria.map((item) => (
+                        <option key={item.clasificacion} value={item.clasificacion}>
+                          {item.valor}
+                        </option>
+                      ))}
                     </Form.Select>
                   </Form.Group>
                 </Col>
+              </Row>
 
+              {/* Categorías de Simulación (Aquí usarás tu lógica de Árbol/Modal que ya perfeccionamos) */}
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label className="fw-bold">Sub-Categoría / Detalles</Form.Label>
+                      <div className="p-2 border rounded bg-light d-flex justify-content-between align-items-center">
+                        <div>
+                          {formulario.subCategoria ? (
+                            <span className="text-success fw-bold">✅{formulario.subCategoria.id} - {formulario.subCategoria.descripcion}</span>
+                          ) : (
+                            <span className="text-muted small">Ninguna seleccionada</span>
+                          )}
+                        </div>
+                        <Button 
+                          variant="primary" 
+                          size="sm"
+                          onClick={() => setIsShowModalTree(true)}
+                          disabled={!formulario.categoria} // Bloqueado hasta que elija la categoría principal
+                        >
+                          Explorar Árbol
+                        </Button>
+                      </div>
+                      {!formulario.categoria && formulario.tipoOperacion && (
+                        <Form.Text className="text-warning text-xs">
+                          * Elige una Categoría Principal para activar el explorador.
+                        </Form.Text>
+                      )}
+                  </Form.Group>
+                </Col>
                 <Col md={6} className="mb-3">
                   <Form.Group>
-                    <Form.Label className="fw-bold small">Sub-Categoría *</Form.Label>
+                    <Form.Label className="fw-bold small">Cuenta *</Form.Label>
                     <Form.Select
                       onChange={(e) => {
                         const id = e.target.value;
                         const txt = e.target.options[e.target.selectedIndex].text;
-                        actualizarCampo('subCategoria', id ? { id, descripcion: txt } : null);
-                        setMatrizDetalleCompra([]); // Reseteamos desglose si cambia de subcategoría
+                        actualizarCampo('cuenta', id ? { id, descripcion: txt } : null);
                       }}
                       required
                     >
                       <option value="">-- Selecciona --</option>
-                      <option value="240011">Gasolina</option>
-                      <option value="26001">Super</option> {/* ID Clave para activar el desglose */}
+                      {dbCuentas.map((item) => (
+                        <option key={item.codigo} value={item.codigo}>
+                          {item.dedscripcion}
+                        </option>
+                      ))}
                     </Form.Select>
                   </Form.Group>
                 </Col>
@@ -313,7 +439,6 @@ export default function Operaciones() {
                         onChange={(e) => setItemProducto(e.target.value)}
                       />
                       <datalist id="productos-datalist">
-                        {catalogoProductos.map(p => <option key={p} value={p} />)}
                       </datalist>
                     </Col>
 
@@ -321,7 +446,6 @@ export default function Operaciones() {
                       <Form.Label className="small fw-bold">Unidad *</Form.Label>
                       <Form.Select value={itemUnidad} onChange={(e) => setItemUnidad(e.target.value)}>
                         <option value="">-- Medida --</option>
-                        {catalogoUnidades.map(u => <option key={u} value={u}>{u}</option>)}
                       </Form.Select>
                     </Col>
 
@@ -382,6 +506,46 @@ export default function Operaciones() {
           )}
         </Row>
       </Form>
+
+      <Modal 
+        show={isShowModalTree} 
+        onHide={() => setIsShowModalTree(false)} 
+        centered 
+        scrollable
+        size="lg"
+      >
+        <Modal.Header closeButton className="bg-dark text-white">
+          <Modal.Title>
+            🌿 Explorador de Subcategorías ({formulario.tipoOperacion?.descripcion} ➡️ {formulario.categoria?.descripcion})
+          </Modal.Title>
+        </Modal.Header>
+        
+        <Modal.Body className="bg-white py-4">
+          <Alert variant="info" className="py-2 small">
+            Navega en la estructura jerárquica y presiona <strong>Seleccionar</strong> en el nivel detallado que corresponda a tu registro.
+          </Alert>
+
+          <div className="pe-2" style={{ minHeight: '200px' }}>
+            {branchTree.length === 0 ? (
+              <div className="text-center text-muted my-5">
+                🚫 Esta categoría principal no cuenta con subcategorías registradas en la base de datos.
+              </div>
+            ) : (
+              // Iteramos las subcategorías del primer nivel, el componente se encargará de buscar el resto
+              branchTree.map((nodoHijo) => (
+                <NodoArbolVisual key={nodoHijo.clasificacion} nodo={nodoHijo} nivel={0} />
+              ))
+            )}
+          </div>
+        </Modal.Body>
+        
+        <Modal.Footer className="bg-light">
+          <Button variant="secondary" onClick={() => setIsShowModalTree(false)}>
+            Cerrar Explorador
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
     </div>
   );
 }
