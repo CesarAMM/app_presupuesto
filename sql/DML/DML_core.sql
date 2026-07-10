@@ -1,7 +1,6 @@
 use dp_presupuesto;
 go
-create schema core;
-go
+
 if OBJECT_ID('core.presupuesto') is not null
 	drop table core.presupuesto
 go
