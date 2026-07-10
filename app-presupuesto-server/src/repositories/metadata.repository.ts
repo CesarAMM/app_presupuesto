@@ -1,6 +1,7 @@
 import { getConnection } from '../config/database';
 import { IClasificacionGasto } from '../interfaces/ClasificacionGasto'
 import { IResponseServicio } from '../interfaces/IRespuestaService'
+import sql from 'mssql'
 
 /* OPTENER ARBOL DE CLASIFICACION DE GASTOS */
 export const listClasificacionGastoDB = async (): Promise<IClasificacionGasto[]> => {
@@ -21,34 +22,8 @@ export const sel_metadata_operaciones = async (): Promise<IResponseServicio> => 
     try {
         const pool = await getConnection();
         const result = await pool.request()
-            .query(`
-                select  * 
-                from    metadata.clasificacion_gasto
-                where   estado = 1
-                order   by clasificacion asc
-
-                select	codigo, 
-                        cuenta + ' - ' + tipo "dedscripcion" 
-                from	core.cuenta
-                where	estado = 1
-
-                select	c.codigo, c.valor
-                from	metadata.tabla t
-                inner join metadata.catalogo c on t.codigo = c.tabla
-                where t.tabla = 'tbl_tipo_transaccion'
-
-                select 	*
-		        from metadata.producto
-                where estado = 1
-
-                select 	*
-		        from metadata.dimension
-                where estado = 1
-
-                select 	*
-		        from metadata.detalle_gasto
-                where estado = 1
-            `);
+            .input('i_operacion', sql.Char, 'Q')
+            .execute('sp_metadata_operaciones');
         pool.close();
         return {
             ok: true,
