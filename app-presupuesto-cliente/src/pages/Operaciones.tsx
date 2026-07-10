@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect} from 'react';
-import { Card, Form, Button, Table, Row, Col, InputGroup, Alert, Modal } from 'react-bootstrap';
+import { Card, Form, Button, Table, Row, Col, InputGroup, Alert } from 'react-bootstrap';
+import ModalArbolCategorias from '../components/ModalArbolCategorias';
 import type { Operacion, DetalleCompra } from '../interface/operacion';
 import { api } from '../services/api';
 
@@ -172,60 +173,6 @@ export default function Operaciones() {
       setStatus({ tipo: 'danger', texto: 'Error al comunicar con la API.' });
     }
   };
-
-  const createTree = (nodoPadre: string): any[] =>{
-    return mtrClasificacion
-      .filter(item => item.padre === nodoPadre)
-      .map(item => ({
-        ...item,
-        hijos: createTree(item.clasificacion)
-      }));
-  }
-
-  const branchTree = formulario.categoria ? createTree(formulario.categoria.id) : [];
-
-  const NodoArbolVisual = ({ nodo, nivel = 0 }: { nodo: any; nivel: number }) => {
-      const esHoja = !nodo.hijos || nodo.hijos.length === 0;
-      return (
-        <div style={{ marginLeft: `${nivel * 25}px` }} className="mb-2">
-          <div className="d-flex align-items-center justify-content-between p-2 rounded bg-light hover-shadow-sm border-start border-primary border-3">
-            <div>
-              <span className="me-2">{nivel === 0 ? '📁' : '📄'}</span>
-              <strong>{nodo.valor}</strong> 
-              <span className="text-muted small ms-2">({nodo.clasificacion})</span>
-            </div>
-            {esHoja ? (
-              <Button 
-                variant="outline-success" 
-                size="sm" 
-                className="py-0 px-2 text-xs"
-                onClick={() => {
-                  setMatrizDetalleCompra([]); // Reseteamos desglose si cambia de subcategoría
-                  actualizarCampo("subCategoria", {id: nodo.clasificacion, descripcion: nodo.valor})
-                  setIsShowModalTree(false);
-                }}
-              >
-                Seleccionar
-              </Button>
-            ) : (
-              // Si es un nodo padre (rama), mostramos un indicador en lugar del botón
-              <span className="badge bg-secondary bg-opacity-50 text-dark border small">
-                Contiene divisiones ↓
-              </span>
-            )}
-          </div>
-          
-          {/* Si este nodo tiene sub-subcategorías (hijos), las dibuja llamándose a sí mismo */}
-          {nodo.hijos && nodo.hijos.length > 0 && (
-            <div className="mt-2 border-start border-light-subtle ps-2">
-              {nodo.hijos.map((hijo: any) => (
-                <NodoArbolVisual key={hijo.clasificacion} nodo={hijo} nivel={nivel + 1} />
-              ))}
-            </div>
-          )}
-        </div>
-      );
-    };
 
   return (
     <div className={`mt-2 mb-5 ${requiereDetalleCompra ? '': 'container mt-2 mb-5'}`}>
@@ -507,45 +454,22 @@ export default function Operaciones() {
         </Row>
       </Form>
 
-      <Modal 
-        show={isShowModalTree} 
-        onHide={() => setIsShowModalTree(false)} 
-        centered 
-        scrollable
-        size="lg"
-      >
-        <Modal.Header closeButton className="bg-dark text-white">
-          <Modal.Title>
-            🌿 Explorador de Subcategorías ({formulario.tipoOperacion?.descripcion} ➡️ {formulario.categoria?.descripcion})
-          </Modal.Title>
-        </Modal.Header>
-        
-        <Modal.Body className="bg-white py-4">
-          <Alert variant="info" className="py-2 small">
-            Navega en la estructura jerárquica y presiona <strong>Seleccionar</strong> en el nivel detallado que corresponda a tu registro.
-          </Alert>
-
-          <div className="pe-2" style={{ minHeight: '200px' }}>
-            {branchTree.length === 0 ? (
-              <div className="text-center text-muted my-5">
-                🚫 Esta categoría principal no cuenta con subcategorías registradas en la base de datos.
-              </div>
-            ) : (
-              // Iteramos las subcategorías del primer nivel, el componente se encargará de buscar el resto
-              branchTree.map((nodoHijo) => (
-                <NodoArbolVisual key={nodoHijo.clasificacion} nodo={nodoHijo} nivel={0} />
-              ))
-            )}
-          </div>
-        </Modal.Body>
-        
-        <Modal.Footer className="bg-light">
-          <Button variant="secondary" onClick={() => setIsShowModalTree(false)}>
-            Cerrar Explorador
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
+      <ModalArbolCategorias 
+        show={isShowModalTree}
+        onHide={() => setIsShowModalTree(false)}
+        tipoOperacion={formulario.tipoOperacion}
+        categoria={formulario.categoria}
+        lstDivisionOperaciones={mtrClasificacion}
+        onSeleccionarNodo={(id, descripcion) => {
+          // Captura el nodo hoja final seleccionado en el componente hijo
+          setFormulario(prev => ({
+            ...prev,
+            subCategoria: { id, descripcion }
+          }));
+          // Cerramos la ventana modal
+          setIsShowModalTree(false);
+        }}
+      />
     </div>
   );
 }

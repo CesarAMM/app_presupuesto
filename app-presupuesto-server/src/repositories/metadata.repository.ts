@@ -18,6 +18,7 @@ export const listClasificacionGastoDB = async (): Promise<IClasificacionGasto[]>
 export const setClasificacionGastoDB = async () =>{
     
 }
+
 export const sel_metadata_operaciones = async (): Promise<IResponseServicio> => {
     try {
         const pool = await getConnection();
@@ -31,10 +32,11 @@ export const sel_metadata_operaciones = async (): Promise<IResponseServicio> => 
             data: result.recordsets
         };
     } catch (e) {
-        console.log(e)
+        const ErrorDB = e as Error;
+        
         return {
             ok: false,
-            mensaje: 'ERROR EN CONSULTA DB'
+            mensaje: ErrorDB.message ||'ERROR INTERNO EN LA BASE DE DATOS'            
         }
     }
 }
