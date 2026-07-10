@@ -76,7 +76,10 @@ create table metadata.clasificacion_gasto(
 	padre			varchar(10)		null,
 	estado			smallint		not null default 1,
 	detalle_gasto	char(1)			not null default 'N',
-	ahorro			char(1)			not null default 'N'
+	ahorro			char(1)			not null default 'N',
+	fijo			char(1)			not null default 'N',
+	variable 		char(1)			not null default 'N',
+	ocacional 		char(1) 		not null default 'N'
 
 	constraint FK_clasificacion_padre FOREIGN KEY (padre)
 		references metadata.clasificacion_gasto(clasificacion)
@@ -84,68 +87,89 @@ create table metadata.clasificacion_gasto(
 go
 
 insert into metadata.clasificacion_gasto (clasificacion, valor, padre) values 
-(1, 'INGRESO', null),
+(1, 'INGRESO', NULL),
 (2, 'EGRESO', NULL)
 
 insert into metadata.clasificacion_gasto (clasificacion, valor, padre) values 
-(110, 'SALARIO', 1),
-(120, 'DIFERIDO', 1),
-(130, 'AGUINALDO', 1),
-(140, 'BONO 14', 1),
-(150, 'BONO', 1)
+(101, 'SALARIO', 	1),
+(102, 'DIFERIDO', 	1),
+(103, 'AGUINALDO', 	1),
+(104, 'BONO 14', 	1),
+(105, 'BONO', 		1),
+(106, 'AHORRO', 	1)
+
+insert into metadata.clasificacion_gasto (clasificacion, valor, padre, fijo, variable, ocacional) values 
+(10101, 'CESAR', 			101, 	'S', 'N', 'N'),
+(10102, 'DANIELA', 			101, 	'S', 'N', 'N'),
+(10201, 'CESAR', 			102, 	'N', 'N', 'S'),
+(10202, 'DANIELA', 			102, 	'N', 'N', 'S'),
+(10301, 'CESAR', 			103, 	'N', 'N', 'S'),
+(10302, 'DANIELA', 			103, 	'N', 'N', 'S'),
+(10401, 'CESAR', 			104, 	'N', 'N', 'S'),
+(10402, 'DANIELA', 			104, 	'N', 'N', 'S'),
+(10501, 'CESAR', 			105, 	'N', 'N', 'S'),
+(10502, 'DANIELA', 			105, 	'N', 'N', 'S'),
+(10601, 'COPE BANRURAL', 	106,	'N', 'N', 'N'),
+(10602, 'FONDO RETIRO', 	106, 	'N', 'N', 'N')
+
+insert into metadata.clasificacion_gasto (clasificacion, valor, padre, ahorro, fijo, variable, ocacional) values
+(1060101, 'APORTE', 	10601, 'S', 	'S', 'N', 'S'),
+(1060102, 'INTERESES', 	10601, 'S', 	'N', 'N', 'S'),
+(1060201, 'APORTE', 	10602, 'S', 	'S', 'N', 'S'),
+(1060202, 'INTERESES', 	10602, 'S', 	'N', 'S', 'N')
+
 
 insert into metadata.clasificacion_gasto (clasificacion, valor, padre) values 
-(11001, 'CESAR', 110),
-(11002, 'DANIELA', 110),
-(12001, 'CESAR', 120),
-(12002, 'DANIELA', 120),
-(13001, 'CESAR', 130),
-(13002, 'DANIELA', 130),
-(14001, 'CESAR', 140),
-(14002, 'DANIELA', 140)
+(201, 'SERVICIO', 	2),
+(202, 'DEUDA', 		2),
+(203, 'AHORRO', 	2),
+(204, 'VEHICULO', 	2),
+(205, 'BANCO', 		2),
+(206, 'COMPRA', 	2),
+(207, 'MESADA', 	2)
 
-insert into metadata.clasificacion_gasto (clasificacion, valor, padre) values 
-(210, 'SERVICIO', 2),
-(220, 'DEUDA', 2),
-(230, 'AHORRO', 2),
-(240, 'VEHICULO', 2),
-(250, 'BANCO', 2),
-(260, 'COMPRA', 2),
-(270, 'MESADA', 2)
+insert into metadata.clasificacion_gasto (clasificacion, valor, padre, fijo, variable, ocacional) values 
+(20101, 'MANTENIMIENTO', 	201, 	'S', 'N', 'N'), 
+(20102, 'CLARO CELULAR',	201, 	'S', 'N', 'N'), 
+(20103, 'CLARO HOGAR', 		201, 	'S', 'N', 'N'),
+(20104, 'LUZ', 				201, 	'N', 'S', 'N'), 
+(20105, 'STREAMING', 		201, 	'S', 'N', 'N')
 
-insert into metadata.clasificacion_gasto (clasificacion, valor, padre) values 
-(21001, 'MANTENIMIENTO', 210), 
-(21002, 'CLARO CELULAR', 210), 
-(21003, 'CLARO HOGAR', 210),
-(21004, 'LUZ', 210), 
-(21005, 'STREAMING', 210)
-
-insert into metadata.clasificacion_gasto (clasificacion, valor, padre) values 
-(22001, 'HIPOTECA', 220), 
-(22002, 'VISACUOTAS', 220),
-(22003, 'EXTRAFINANCIAMIENTO', 220),
-(22004, 'CREDITO', 220)
-
-insert into metadata.clasificacion_gasto (clasificacion, valor, padre, ahorro) values
-(23001, 'COPE BANRURAL', 230, 'S'),
-(23002, 'FONDO RETIRO', 230, 'S')
+insert into metadata.clasificacion_gasto (clasificacion, valor, padre, fijo, variable, ocacional) values 
+(20201, 'HIPOTECA', 			202, 'S', 'N', 'N'), 
+(20202, 'VISACUOTAS', 			202, 'S', 'N', 'N'),
+(20203, 'EXTRAFINANCIAMIENTO', 	202, 'S', 'N', 'N'),
+(20204, 'CREDITO', 				202, 'S', 'N', 'N')
 
 insert into metadata.clasificacion_gasto (clasificacion, valor, padre) values
-(24001, 'MOTO', 240),
-(24002, 'CARRO', 240)
+(20301, 'COPE BANRURAL', 	203),
+(20302, 'FONDO RETIRO', 	203)
+
+insert into metadata.clasificacion_gasto (clasificacion, valor, padre, ahorro, fijo, variable, ocacional) values
+(203011, 'APORTE', 		20301, 'S', 	'S', 'N', 'S'),
+(203012, 'INTERESES', 	20301, 'S', 	'N', 'S', 'N'),
+(203021, 'APORTE', 		20302, 'S', 	'S', 'N', 'S'),
+(203022, 'INTERESES', 	20302, 'S', 	'N', 'S', 'N')
 
 insert into metadata.clasificacion_gasto (clasificacion, valor, padre) values
-(240011, 'GASOLINA', 24001),
-(240012, 'SERVICIO', 24001),
-(240022, 'GASOLINA', 24002),
-(240023, 'SERVICIO', 24002)
+(20401, 'MOTO', 204),
+(20402, 'CARRO', 204)
 
-insert into metadata.clasificacion_gasto (clasificacion, valor, padre, detalle_gasto) values
-(26001, 'SUPER', 260, 'S'),
-(26002, 'COMIDA AFUERA', 260, 'N')
+insert into metadata.clasificacion_gasto (clasificacion, valor, padre, fijo, variable, ocacional) values
+(204011, 'GASOLINA', 20401, 'N', 'S', 'N'),
+(204012, 'SERVICIO', 20401, 'N', 'N', 'S'),
+(204022, 'GASOLINA', 20402, 'N', 'S', 'N'),
+(204023, 'SERVICIO', 20402, 'N', 'N', 'S')
 
-insert into metadata.clasificacion_gasto (clasificacion, valor, padre) values
-(27001, 'DANIELA', 270), (27002, 'CESAR', 270), (27003, 'DOÑA TONY', 270), (27004, 'NEGRA', 270)
+insert into metadata.clasificacion_gasto (clasificacion, valor, padre, detalle_gasto, fijo, variable, ocacional) values
+(20601, 'SUPER',		 206, 'S', 'N', 'S', 'N'),
+(20602, 'COMIDA AFUERA', 206, 'N', 'N', 'S', 'S')
+
+insert into metadata.clasificacion_gasto (clasificacion, valor, padre,  fijo, variable, ocacional) values
+(20701, 'DANIELA', 		207, 'S', 'N', 'N'), 
+(20702, 'CESAR', 		207, 'S', 'N', 'N'), 
+(20703, 'DOÑA TONY', 	207, 'S', 'N', 'N'), 
+(20704, 'NEGRA', 		207, 'S', 'N', 'N')
 
 GO
 	select	* 
