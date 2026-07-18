@@ -23,8 +23,9 @@ export const sel_metadata_operaciones = async (): Promise<IResponseServicio> => 
     try {
         const pool = await getConnection();
         const result = await pool.request()
-            .input('i_operacion', sql.Char, 'Q')
+            .input('i_operacion', sql.Char, 'Q') // PARA OPERACION DE QUERY
             .execute('sp_metadata_operaciones');
+        
         pool.close();
         return {
             ok: true,

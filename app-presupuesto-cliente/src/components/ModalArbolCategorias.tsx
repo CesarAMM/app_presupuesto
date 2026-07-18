@@ -1,5 +1,3 @@
-// src/components/ModalArbolCategorias.tsx
-import React from 'react';
 import { Modal, Button, Alert } from 'react-bootstrap';
 import type { Item } from '../interface/presupuesto'; // Ajusta la ruta a tus interfaces si es necesario
 

@@ -1,23 +1,23 @@
 import React, { useState, useMemo, useEffect} from 'react';
 import { Card, Form, Button, Table, Row, Col, InputGroup, Alert } from 'react-bootstrap';
 import ModalArbolCategorias from '../components/ModalArbolCategorias';
-import type { Operacion, DetalleCompra } from '../interface/operacion';
+import type { Operacion, DetalleCompra, FormularioOperacion } from '../interface/operacion';
 import { api } from '../services/api';
 
 export default function Operaciones() {
   // --- Estados Principales ---
-  const estadoInicialForm = {
-    fechaOperacion: new Date().toISOString().split('T')[0], // Fecha de hoy por defecto
-    tipoOperacion: null,
+  const estadoInicialForm: FormularioOperacion = {
+    fecha_operacion: new Date().toISOString().split('T')[0], // Fecha de hoy por defecto
+    tipo_operacion: null,
     frecuencia: null,
     categoria: null,
-    subCategoria: null,
+    sub_categoria: null,
     cuenta: null,
     monto: '',
     descripcion: '',
   };
 
-  const [formulario, setFormulario] = useState<Operacion>(estadoInicialForm);
+  const [formulario, setFormulario] = useState<FormularioOperacion>(estadoInicialForm);
   const [matrizDetalleCompra, setMatrizDetalleCompra] = useState<DetalleCompra[]>([]);
   const [status, setStatus] = useState<{ tipo: string; texto: string } | null>(null);
 
@@ -39,13 +39,13 @@ export default function Operaciones() {
   // --- EVALUACIÓN DE REGLA DE NEGOCIO ---
   // Detecta si la subcategoría requiere desglose de factura (Ej: 'SUPER' o código '26001')
   const requiereDetalleCompra = useMemo(() => {
-    const idSubCategoriaSel = formulario.subCategoria?.id
+    const idSubCategoriaSel = formulario.sub_categoria?.id
     const detalle_gasto = mtrClasificacion.find(p => p.clasificacion === idSubCategoriaSel)
     if (!detalle_gasto){
       return false
     }
     return  detalle_gasto.detalle_gasto === 'S';
-  }, [formulario.subCategoria]);
+  }, [formulario.sub_categoria]);
 
   // --- CÁLCULO AUTOMÁTICO DE TOTAL FACTURA (`useMemo`) ---
   const totalFacturaCalculado = useMemo(() => {
@@ -96,7 +96,7 @@ export default function Operaciones() {
   const montoDefinitivo = requiereDetalleCompra ? totalFacturaCalculado : parseFloat(formulario.monto) || 0;
 
   // --- Manejador genérico de campos ---
-  const actualizarCampo = (campo: keyof Operacion, valor: any) => {
+  const actualizarCampo = (campo: keyof FormularioOperacion, valor: any) => {
     setFormulario(prev => ({ ...prev, [campo]: valor }));
   };
 
@@ -137,17 +137,17 @@ export default function Operaciones() {
   const handleGuardarOperacion = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formulario.tipoOperacion || !formulario.categoria || !formulario.subCategoria || montoDefinitivo <= 0) {
+    if (!formulario.tipo_operacion || !formulario.categoria || !formulario.sub_categoria || montoDefinitivo <= 0) {
       alert('Por favor, complete los campos obligatorios y asegúrese de que el monto sea mayor a 0.');
       return;
     }
 
     // Armamos el Payload estructurado final para enviarlo a Node.js / SQL Server
     const payloadTransaccion = {
-      fecha: formulario.fechaOperacion,
-      tipoOperacionId: formulario.tipoOperacion.id,
-      frecuenciaId: formulario.frecuencia?.id || null,
-      clasificacionId: formulario.subCategoria.id, // Se guarda el nivel hoja final
+      fecha: formulario.fecha_operacion,
+      tipo_operacion: formulario.tipo_operacion,
+      frecuencia: formulario.frecuencia,
+      sub_categoria: formulario.sub_categoria, // Se guarda el nivel hoja final
       montoTotal: montoDefinitivo,
       descripcion: formulario.descripcion,
       // Si requería detalle, adjuntamos la matriz completa de la factura, si no, va vacía
@@ -195,8 +195,8 @@ export default function Operaciones() {
                     <Form.Label className="fw-bold small">Fecha Operación *</Form.Label>
                     <Form.Control 
                       type="date" 
-                      value={formulario.fechaOperacion}
-                      onChange={(e) => actualizarCampo('fechaOperacion', e.target.value)}
+                      value={formulario.fecha_operacion}
+                      onChange={(e) => actualizarCampo('fecha_operacion', e.target.value)}
                       required
                       disabled={stateCatalogo}
                     />
@@ -208,16 +208,18 @@ export default function Operaciones() {
                     <Form.Label className="fw-bold small">Tipo Operación *</Form.Label>
                     <Form.Select 
                       disabled={stateCatalogo}
-                      value={formulario.tipoOperacion?.id || ''}
+                      value={formulario.tipo_operacion?.id || ''}
                       onChange={(e) => {
                         const id = e.target.value;
-                        const txt = e.target.options[e.target.selectedIndex].text;
+                        const descripcion = e.target.options[e.target.selectedIndex].text;
 
                         const tmpCategoria = mtrClasificacion.filter((dato: any) => dato.padre === id)
                         setDbCategoria(tmpCategoria)
-                        actualizarCampo('tipoOperacion', id ? { id, descripcion: txt } : null);
+                        
+                        actualizarCampo('tipo_operacion', id ? { id, descripcion } : null);
+                        actualizarCampo('frecuencia', null);
                         actualizarCampo('categoria', null);
-                        actualizarCampo('subCategoria', null);
+                        actualizarCampo('sub_categoria', null);
                       }}
                       required
                     >
@@ -241,8 +243,17 @@ export default function Operaciones() {
                       value={formulario.frecuencia?.id || ''}
                       onChange={(e) => {
                         const id = e.target.value;
-                        const txt = e.target.options[e.target.selectedIndex].text;
-                        actualizarCampo('frecuencia', id ? { id, descripcion: txt } : null);
+                        const descripcion = e.target.options[e.target.selectedIndex].text;
+
+                        const fijo = id === '1' ? 'S' : ''
+                        const variable = id === '2' ? 'S': ''
+                        const ocacional = id === '3' ? 'S': ''
+
+                        const tmpCategoria = dbCategoria.filter((data: any) => data.fijo === fijo || data.variable === variable || data.ocacional === ocacional)
+                        
+                        actualizarCampo('frecuencia', id ? { id, descripcion } : null);
+                        actualizarCampo('categoria', null);
+                        actualizarCampo('sub_categoria', null);
                       }}
                     >
                       <option value="">-- Selecciona --</option>
@@ -283,8 +294,8 @@ export default function Operaciones() {
                     <Form.Label className="fw-bold">Sub-Categoría / Detalles</Form.Label>
                       <div className="p-2 border rounded bg-light d-flex justify-content-between align-items-center">
                         <div>
-                          {formulario.subCategoria ? (
-                            <span className="text-success fw-bold">✅{formulario.subCategoria.id} - {formulario.subCategoria.descripcion}</span>
+                          {formulario.sub_categoria ? (
+                            <span className="text-success fw-bold">✅{formulario.sub_categoria?.id} - {formulario.sub_categoria?.descripcion}</span>
                           ) : (
                             <span className="text-muted small">Ninguna seleccionada</span>
                           )}
@@ -298,7 +309,7 @@ export default function Operaciones() {
                           Explorar Árbol
                         </Button>
                       </div>
-                      {!formulario.categoria && formulario.tipoOperacion && (
+                      {!formulario.categoria && formulario.tipo_operacion && (
                         <Form.Text className="text-warning text-xs">
                           * Elige una Categoría Principal para activar el explorador.
                         </Form.Text>
@@ -457,7 +468,7 @@ export default function Operaciones() {
       <ModalArbolCategorias 
         show={isShowModalTree}
         onHide={() => setIsShowModalTree(false)}
-        tipoOperacion={formulario.tipoOperacion}
+        tipoOperacion={formulario.tipo_operacion}
         categoria={formulario.categoria}
         lstDivisionOperaciones={mtrClasificacion}
         onSeleccionarNodo={(id, descripcion) => {

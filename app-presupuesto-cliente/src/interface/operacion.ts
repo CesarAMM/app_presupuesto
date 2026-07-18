@@ -19,3 +19,14 @@ export interface Operacion {
     monto: string;
     descripcion: string | null;
 }
+
+export interface FormularioOperacion {
+  fecha_operacion: string;
+  tipo_operacion: Item | null;
+  frecuencia: Item | null;
+  categoria: Item | null;
+  sub_categoria: Item | null;
+  cuenta: Item | null;
+  monto: string;
+  descripcion: string
+}

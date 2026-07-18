@@ -6,12 +6,13 @@ import type {Item, ItemPresupuesto, FormularioPresupuesto} from '../interface/pr
 
 export default function Presupuesto() {
   const estadoInicialFormulario: FormularioPresupuesto = {
-      monto: '',
-      tipoOperacion: null,
-      frecuencia: null,
-      categoria: null,
-      subCategoria: null,
-    };
+    monto: '',
+    tipoOperacion: null,
+    frecuencia: null,
+    categoria: null,
+    subCategoria: null,
+  };
+  
   const [formulario, setFormulario] = useState(estadoInicialFormulario)
   const [editItem, setEditItem] = useState<number | null>(null)
 
